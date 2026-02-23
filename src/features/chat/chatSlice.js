@@ -38,14 +38,16 @@ const chatSlice = createSlice({
     activeChat: null,
     loading: false,
     error: null,
+
   },
 
   reducers: {
    
     addMessage: (state, action) => {
-      const message = action.payload;
+      const {message,userId} = action.payload;
+    
 
-     
+      
       const chatId = message.group
         ? message.group
         : message.sender === state.activeChat?.id

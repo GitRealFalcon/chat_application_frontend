@@ -9,6 +9,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from '../App/hooks'
 import { getMessage, getGroupMessage } from '../features/chat/chatSlice'
 import { getSocket } from '../services/socket/socket'
+import { toggleShowSearch } from '../features/theme/themeSlice'
 
 const TYPING_TIMER = 1000
 
@@ -24,6 +25,8 @@ const Home = () => {
   const user = useAppSelector((state) => state.auth.user)
   const onlineUser = useAppSelector((state) => state.user.onlineUser)
   const typingUser = useAppSelector((state) => state.notification.typing)
+  const showMenu = useAppSelector(state => state.theme.showMenu)
+  const showSearch = useAppSelector(state => state.theme.showSearch)
 
 
   const messages = useMemo(() => {
@@ -35,9 +38,12 @@ const Home = () => {
   const [input, setInput] = useState("")
   const typingTimerRef = useRef(null)
   const isTypingRef = useRef(false)
+  const searchUserRef = useRef(null)
 
+  
+  
 
-  const contacts = user?.contacts ?? []
+  const contacts = user?.Chats ?? []
   const groups = user?.joinedGroup ?? []
 
   const allChats = useMemo(() => {
@@ -144,17 +150,38 @@ const Home = () => {
     setInput("")
   }
 
+  useEffect(()=>{
+    const handleOutsideClick= (e)=>{
+      if (searchUserRef.current && !searchUserRef.current.contains(e.target)) {
+        dispatch(toggleShowSearch())
+      }
+    }
 
+    if (showSearch) {
+      document.addEventListener("mousedown",handleOutsideClick)
+    }else{
+      document.removeEventListener("mousedown",handleOutsideClick)
+    }
+
+    return ()=>{
+      document.removeEventListener("mousedown", handleOutsideClick)
+    }
+
+  },[showSearch])
+    
 
   return (
     <div className='grid h-screen grid-cols-[320px_1fr] bg-[#111b21] text-[#e9edef] max-[900px]:grid-cols-1'>
-
+      <div className='max-[900px]:hidden'>
       <Sidebar Chats={allChats} />
+      </div>
 
       <div className='flex ' >
 
-        <main className='flex grow h-full flex-col bg-[#0b141a]'>
-          <SearchUserComponent />
+        <main className='flex grow h-screen flex-col bg-[#0b141a]'>
+          <SearchUserComponent ref={searchUserRef}/>
+
+          {showMenu && <Sidebar Chats={allChats} />}
 
           <Navbar
             activeChat={activeChat}
@@ -176,7 +203,7 @@ const Home = () => {
           />
         </main>
 
-        <UserInfo/>
+        <UserInfo />
       </div>
     </div>
   )

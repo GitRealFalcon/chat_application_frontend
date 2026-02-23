@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getOnlineUsersAPI, getUserByIdAPI, searchUserAPI } from "./userAPI";
+import { getOnlineUsersAPI, getUserByIdAPI, searchUserAPI,addChatAPI } from "./userAPI";
 
-// 🔹 Get Online Users
+
 export const getOnlineUser = createAsyncThunk(
   "user/getOnlineUser",
   async (_, thunkAPI) => {
@@ -16,7 +16,7 @@ export const getOnlineUser = createAsyncThunk(
   },
 );
 
-// 🔹 Get User By Id
+
 export const getUserById = createAsyncThunk(
   "user/getUserById",
   async (userId, thunkAPI) => {
@@ -31,7 +31,7 @@ export const getUserById = createAsyncThunk(
   },
 );
 
-// 🔹 Search User
+
 export const searchUser = createAsyncThunk(
   "user/searchUser",
   async (query, thunkAPI) => {
@@ -45,6 +45,20 @@ export const searchUser = createAsyncThunk(
     }
   },
 );
+
+export const addChat = createAsyncThunk(
+  "user/addChat",
+  async (data,thunkAPI)=>{
+    try {
+     const res = await  addChatAPI(data)
+     return res.data
+    } catch (error) {
+       return thunkAPI.rejectWithValue(
+        error.response?.data || "addChat error",
+      );
+    }
+  }
+)
 
 const userSlice = createSlice({
   name: "user",
@@ -71,6 +85,9 @@ const userSlice = createSlice({
 
       state.onlineUser = state.onlineUser.filter((id) => id !== userId);
     },
+    resetSearchUser: (state)=>{
+      state.searchUser = []
+    }
   },
 
   extraReducers: (builder) => {
@@ -116,9 +133,21 @@ const userSlice = createSlice({
       .addCase(searchUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+
+      .addCase(addChat.pending, (state,action)=>{
+        state.error = null
+        state.loading = true
+      })
+      .addCase(addChat.fulfilled,(state,action)=>{
+        state.loading = false
+      })
+      .addCase(addChat.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload
+      })
   },
 });
 
-export const { addOnlineUser, removeOnlineUser } = userSlice.actions;
+export const { addOnlineUser, removeOnlineUser, resetSearchUser } = userSlice.actions;
 export default userSlice.reducer;

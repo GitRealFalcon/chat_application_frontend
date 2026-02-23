@@ -13,3 +13,8 @@ export const getOnlineUsersAPI = async ()=>{
     const res = await axiosInstance.get("/user/onlineUser")
     return res.data
 }
+
+export const addChatAPI = async(data)=>{
+    const res = await axiosInstance.patch("/user/add",data)
+    return res.data
+}

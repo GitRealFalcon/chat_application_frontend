@@ -1,10 +1,13 @@
-import { useAppDispatch, useAppSelector } from '../../App/hooks'
+ import { useAppDispatch, useAppSelector } from '../../App/hooks'
 import { setActiveChat } from '../../features/chat/chatSlice'
+import { toggleShowMenu } from '../../features/theme/themeSlice'
+import { forwardRef } from 'react'
 
-const Sidebar = ({ Chats = [] }) => {
+const Sidebar = ({ Chats = [] }) =>{
   const dispatch = useAppDispatch()
   const activeChat = useAppSelector(state => state.chat.activeChat)
   const messages = useAppSelector(state => state.chat.messages)
+ 
 
   const handleSelect = (chat) => {
     dispatch(setActiveChat({
@@ -20,12 +23,19 @@ const Sidebar = ({ Chats = [] }) => {
     return chatMessages[chatMessages.length - 1]?.text
   }
 
+  const handleClose = ()=>{
+    dispatch(toggleShowMenu(false))
+  }
+
   return (
-    <aside className='flex flex-col border-r border-[#1f2c34] bg-[#111b21] max-[900px]:hidden'>
+    <aside className='flex flex-col border-r border-[#1f2c34] bg-[#111b21] max-[900px]:absolute max-[900px]:w-screen h-screen'>
 
       <div className='flex items-center justify-between px-4 py-3'>
+        <div className='flex justify-center items-center gap-3'>
+        <img className='hidden max-[900px]:block' onClick={handleClose} src="src\assets\close.svg" alt="close" />
         <div className='text-lg font-serif text-green-500 font-bold'>
           Chattify
+        </div>
         </div>
         <button className='px-2 py-1 font-bold text-base text-[#e9edef] hover:bg-[#202c33] rounded'>
           ⋮

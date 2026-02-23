@@ -4,7 +4,8 @@ const themeSlice = createSlice({
     name : "theme",
     initialState:{
         showSearch : false,
-        showUserInfo:false
+        showUserInfo:false,
+        showMenu:false
     },
     reducers:{
         toggleShowSearch : (state)=>{
@@ -12,10 +13,14 @@ const themeSlice = createSlice({
         },
         toggleShowUserInfo : (state,action)=>{
             state.showUserInfo = action.payload
+        },
+        toggleShowMenu: (state,action)=>{
+            state.showMenu = action.payload
         }
+        
     }
 })
 
-export const {toggleShowSearch,toggleShowUserInfo} = themeSlice.actions
+export const {toggleShowSearch,toggleShowUserInfo,toggleShowMenu} = themeSlice.actions
 
 export default themeSlice.reducer

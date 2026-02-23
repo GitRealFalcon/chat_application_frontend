@@ -17,11 +17,12 @@ export const registerSocketListener = (socket) => {
   });
 
   // -------------------- Messages --------------------
+    const user = store.getState().auth.user
 
   socket.on("direct:message", (message) => {
     console.log("Received direct message:", message);
-    store.dispatch(addMessage(message));
-    store.dispatch(addAlert(message));
+    store.dispatch(addMessage({userId: user._id,message}));
+    store.dispatch(addAlert({userId:user._id,message}));
   });
 
   socket.on("group:message", (message) => {

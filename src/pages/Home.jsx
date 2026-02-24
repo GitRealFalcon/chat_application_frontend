@@ -9,7 +9,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from '../App/hooks'
 import { getMessage, getGroupMessage } from '../features/chat/chatSlice'
 import { getSocket } from '../services/socket/socket'
-import { toggleShowSearch,toggleProfileMenu } from '../features/theme/themeSlice'
+import { toggleShowSearch, toggleProfileMenu } from '../features/theme/themeSlice'
 import ProfileMenu from '../components/homePage/ProfileMenu'
 
 const TYPING_TIMER = 1000
@@ -26,8 +26,8 @@ const Home = () => {
   const user = useAppSelector((state) => state.auth.user)
   const onlineUser = useAppSelector((state) => state.user.onlineUser)
   const typingUser = useAppSelector((state) => state.notification.typing)
-  const {showMenu,showSearch,showProfileMenu} = useAppSelector(state => state.theme)
-  
+  const { showMenu, showSearch, showProfileMenu } = useAppSelector(state => state.theme)
+
 
 
   const messages = useMemo(() => {
@@ -42,7 +42,7 @@ const Home = () => {
   const searchUserRef = useRef(null)
   const menuRef = useRef(null)
 
-  
+
 
   const contacts = user?.Chats ?? []
   const groups = user?.joinedGroup ?? []
@@ -151,44 +151,44 @@ const Home = () => {
     setInput("")
   }
 
-  useEffect(()=>{
-    const handleOutsideClick= (e)=>{
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
       if (searchUserRef.current && !searchUserRef.current.contains(e.target)) {
         dispatch(toggleShowSearch(false))
-        
+
       }
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         dispatch(toggleProfileMenu(false))
-         
+
       }
     }
 
     if (showSearch || showProfileMenu) {
-      document.addEventListener("mousedown",handleOutsideClick)
-    }else{
-      document.removeEventListener("mousedown",handleOutsideClick)
-    }
-
-    return ()=>{
+      document.addEventListener("mousedown", handleOutsideClick)
+    } else {
       document.removeEventListener("mousedown", handleOutsideClick)
     }
 
-  },[showSearch,showProfileMenu])
-    
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick)
+    }
+
+  }, [showSearch, showProfileMenu])
+
 
   return (
     <div className='grid h-screen grid-cols-[320px_1fr] bg-[#111b21] text-[#e9edef] max-[900px]:grid-cols-1'>
       <div className='max-[900px]:hidden'>
-      <Sidebar Chats={allChats} />
+        <Sidebar Chats={allChats} />
       </div>
 
       <div className='flex ' >
 
         <main className='flex grow h-screen flex-col bg-[#0b141a]'>
-          <SearchUserComponent ref={searchUserRef}/>
-          
-            <ProfileMenu ref={menuRef}/>
-            
+          <SearchUserComponent ref={searchUserRef} />
+
+          <ProfileMenu ref={menuRef} />
+
 
           {showMenu && <Sidebar Chats={allChats} />}
 

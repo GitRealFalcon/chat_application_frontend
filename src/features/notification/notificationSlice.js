@@ -16,9 +16,9 @@ const notificationSlice = createSlice({
 
     
     removeAlert: (state, action) => {
-      const removeId = String(action.payload._id);
+      const removeId = String(action.payload);
       state.alertMSG = state.alertMSG.filter(
-        (e) => e._id !== removeId
+        (e) => e.msgId !== removeId
       );
     },
 
@@ -36,7 +36,6 @@ const notificationSlice = createSlice({
     
     removeTyping: (state, action) => {
       const removeId = action.payload.userId;
-
       state.typing = state.typing.filter(
         (e) => e.userId !== removeId
       );

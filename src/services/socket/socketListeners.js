@@ -9,6 +9,7 @@ import {
   removeOnlineUser
 } from "../../features/user/userSlice";
 import store from "../../App/store";
+import { Toast } from "../../pages/Home";
 
 export const registerSocketListener = (socket) => {
 
@@ -20,7 +21,7 @@ export const registerSocketListener = (socket) => {
     const user = store.getState().auth.user
 
   socket.on("direct:message", (message) => {
-    console.log("Received direct message:", message);
+    Toast(message,user._id)
     store.dispatch(addMessage({userId: user._id,message}));
     store.dispatch(addAlert({userId:user._id,message}));
   });

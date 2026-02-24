@@ -11,8 +11,16 @@ import { getMessage, getGroupMessage } from '../features/chat/chatSlice'
 import { getSocket } from '../services/socket/socket'
 import { toggleShowSearch, toggleProfileMenu } from '../features/theme/themeSlice'
 import ProfileMenu from '../components/homePage/ProfileMenu'
+import { ToastContainer, toast } from 'react-toastify'
+
 
 const TYPING_TIMER = 1000
+
+export const Toast = (data, userId) => {
+  if (userId !== data.sender) {
+    toast.info(data.text)
+  }
+}
 
 const Home = () => {
   const dispatch = useAppDispatch()
@@ -26,6 +34,7 @@ const Home = () => {
   const user = useAppSelector((state) => state.auth.user)
   const onlineUser = useAppSelector((state) => state.user.onlineUser)
   const typingUser = useAppSelector((state) => state.notification.typing)
+  const msgAlert = useAppSelector((state) => state.notification.alertMSG)
   const { showMenu, showSearch, showProfileMenu } = useAppSelector(state => state.theme)
 
 
@@ -183,6 +192,7 @@ const Home = () => {
       </div>
 
       <div className='flex ' >
+        <ToastContainer />
 
         <main className='flex grow h-screen flex-col bg-[#0b141a]'>
           <SearchUserComponent ref={searchUserRef} />

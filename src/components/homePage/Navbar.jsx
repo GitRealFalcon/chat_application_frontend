@@ -1,4 +1,4 @@
-import { toggleShowSearch,toggleShowUserInfo ,toggleShowMenu} from '../../features/theme/themeSlice'
+import { toggleShowSearch,toggleShowUserInfo ,toggleShowMenu,toggleProfileMenu} from '../../features/theme/themeSlice'
 import { useAppDispatch, useAppSelector } from '../../App/hooks'
 import { resetSearchUser } from '../../features/user/userSlice'
 
@@ -33,7 +33,7 @@ const Navbar = ({ activeChat, status = [], typing = [] }) => {
 
   const handleClick = () => {
     dispatch(resetSearchUser())
-    dispatch(toggleShowSearch())
+    dispatch(toggleShowSearch(true))
   }
 
   const handleToggleUserInfo = ()=>{
@@ -44,11 +44,14 @@ const Navbar = ({ activeChat, status = [], typing = [] }) => {
     dispatch(toggleShowMenu(true))
   }
 
+  const handleShowProfileMenu = ()=>{
+      dispatch(toggleProfileMenu(true))
+  }
   return (
-    <div className='flex items-center justify-between cursor-pointer border-b border-[#1f2c34] bg-[#202c33] px-4 py-2'>
+    <div className='flex items-center justify-between border-b border-[#1f2c34] bg-[#202c33] px-4 py-2'>
       <div className='flex justify-center items-center gap-3'>
-      <img onClick={handleShowMenu}  className='hidden max-[900px]:block' src="src\assets\menu.svg" alt="menu" />
-      <div onClick={handleToggleUserInfo} className='flex items-center gap-3'>
+      <img onClick={handleShowMenu}  className='hidden cursor-pointer max-[900px]:block' src="src\assets\menu.svg" alt="menu" />
+      <div onClick={handleToggleUserInfo} className='flex cursor-pointer items-center gap-3'>
 
         <div className='h-10 w-10 rounded-full bg-[#3b4a54] flex justify-center items-center'>
           <img src="src\assets\person.svg" alt="avatar" />
@@ -75,12 +78,12 @@ const Navbar = ({ activeChat, status = [], typing = [] }) => {
       <div className='flex gap-1'>
         <button
           onClick={handleClick}
-          className='px-2 py-1 text-base text-[#e9edef] rounded-full hover:bg-[#2a3942]'
+          className='cursor-pointer px-2 py-1 text-base text-[#e9edef] rounded-full hover:bg-[#2a3942]'
         >
           <img src="src/assets/search.svg" alt="search" />
         </button>
 
-        <button className='px-2 py-1 font-bold text-base text-[#e9edef] rounded hover:bg-[#2a3942]'>
+        <button onClick={handleShowProfileMenu} className='cursor-pointer px-2 py-1 font-bold text-base text-[#e9edef] rounded hover:bg-[#2a3942]'>
           ⋮
         </button>
       </div>

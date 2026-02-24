@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginAPI, registerAPI, meAPI } from "./authAPI";
+import { loginAPI, registerAPI, meAPI ,logoutAPI} from "./authAPI";
 
 export const loginUser = createAsyncThunk(
   "auth/login",
@@ -40,6 +40,17 @@ export const getUser = createAsyncThunk(
   }
 );
 
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (_, thunkAPI)=>{
+    try {
+      return await logoutAPI()
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Logout failed")
+    }
+  }
+)
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -51,13 +62,15 @@ const authSlice = createSlice({
     message: null,
     
   },
-  reducers: {
-    logout: (state) => {
-      state.user = null;
-      state.isAuthenticated = false;
-      state.error = null;
+  reducers:{
+    logout: (state)=>{
+      state.user = null
+      state.isAuthenticated =false
+      state.message = null
+      state.loading = false
     }
   },
+ 
   extraReducers: (builder) => {
 
 
@@ -112,9 +125,24 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.authChecked = true;
-      });
+      })
+
+      .addCase(logoutUser.pending, (state)=>{
+        state.error = null,
+        state.loading = true
+      })
+      .addCase(logoutUser.fulfilled, (state)=>{
+        state.isAuthenticated = false
+        state.loading = false
+        state.user = null
+      })
+      .addCase(logoutUser.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload
+        state.isAuthenticated = false
+      })
   }
 });
 
-export const { logout } = authSlice.actions;
+export const {logout} = authSlice.actions
 export default authSlice.reducer;

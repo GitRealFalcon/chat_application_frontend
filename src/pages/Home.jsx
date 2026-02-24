@@ -9,7 +9,8 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from '../App/hooks'
 import { getMessage, getGroupMessage } from '../features/chat/chatSlice'
 import { getSocket } from '../services/socket/socket'
-import { toggleShowSearch } from '../features/theme/themeSlice'
+import { toggleShowSearch,toggleProfileMenu } from '../features/theme/themeSlice'
+import ProfileMenu from '../components/homePage/ProfileMenu'
 
 const TYPING_TIMER = 1000
 
@@ -25,8 +26,8 @@ const Home = () => {
   const user = useAppSelector((state) => state.auth.user)
   const onlineUser = useAppSelector((state) => state.user.onlineUser)
   const typingUser = useAppSelector((state) => state.notification.typing)
-  const showMenu = useAppSelector(state => state.theme.showMenu)
-  const showSearch = useAppSelector(state => state.theme.showSearch)
+  const {showMenu,showSearch,showProfileMenu} = useAppSelector(state => state.theme)
+  
 
 
   const messages = useMemo(() => {
@@ -39,8 +40,8 @@ const Home = () => {
   const typingTimerRef = useRef(null)
   const isTypingRef = useRef(false)
   const searchUserRef = useRef(null)
+  const menuRef = useRef(null)
 
-  
   
 
   const contacts = user?.Chats ?? []
@@ -153,11 +154,16 @@ const Home = () => {
   useEffect(()=>{
     const handleOutsideClick= (e)=>{
       if (searchUserRef.current && !searchUserRef.current.contains(e.target)) {
-        dispatch(toggleShowSearch())
+        dispatch(toggleShowSearch(false))
+        
+      }
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        dispatch(toggleProfileMenu(false))
+         
       }
     }
 
-    if (showSearch) {
+    if (showSearch || showProfileMenu) {
       document.addEventListener("mousedown",handleOutsideClick)
     }else{
       document.removeEventListener("mousedown",handleOutsideClick)
@@ -167,7 +173,7 @@ const Home = () => {
       document.removeEventListener("mousedown", handleOutsideClick)
     }
 
-  },[showSearch])
+  },[showSearch,showProfileMenu])
     
 
   return (
@@ -180,6 +186,9 @@ const Home = () => {
 
         <main className='flex grow h-screen flex-col bg-[#0b141a]'>
           <SearchUserComponent ref={searchUserRef}/>
+          
+            <ProfileMenu ref={menuRef}/>
+            
 
           {showMenu && <Sidebar Chats={allChats} />}
 

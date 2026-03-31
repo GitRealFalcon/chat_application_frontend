@@ -34,7 +34,6 @@ const Home = () => {
   const user = useAppSelector((state) => state.auth.user)
   const onlineUser = useAppSelector((state) => state.user.onlineUser)
   const typingUser = useAppSelector((state) => state.notification.typing)
-  const msgAlert = useAppSelector((state) => state.notification.alertMSG)
   const { showMenu, showSearch, showProfileMenu } = useAppSelector(state => state.theme)
 
 

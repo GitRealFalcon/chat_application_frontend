@@ -10,7 +10,7 @@ type Message = {
     msgId: string
     sender: string
     receiver?: string
-    groupId?:string
+    groupId?: string
     text: string
     ts: string
 }
@@ -18,14 +18,14 @@ type Message = {
 
 
 const HomeChats = () => {
-   const {loading,messages,activeChat} = useAppSelector(state => state.chat)
-   const user = useAppSelector(state => state.auth.user)
-   const chatMessages = messages[activeChat._id] ?? []
-   const bottomRef = useRef(null)
+    const { loading, messages, activeChat } = useAppSelector(state => state.chat)
+    const user = useAppSelector(state => state.auth.user)
+    const chatMessages = messages[activeChat._id] ?? []
+    const bottomRef = useRef(null)
 
-   useEffect(()=>{
-    bottomRef?.current.scrollIntoView({ behavior: "smooth" })
-   },[chatMessages])
+    useEffect(() => {
+        bottomRef?.current.scrollIntoView({ behavior: "smooth" })
+    }, [chatMessages])
     const formatTime = (ts: string | Date) => {
         if (!ts) return ""
         return new Date(ts).toLocaleTimeString([], {
@@ -35,11 +35,13 @@ const HomeChats = () => {
     }
 
     return (
-        <div   className='flex min-h-0 grow flex-col bg-[url("/chatBG-white.jpg")] dark:bg-[url("/chatBG-black.jpg")]'>
+        <div className='flex min-h-0 grow flex-col bg-repeat
+    bg-[length:320px]
+ bg-[url("/chatBG-white.jpg")] dark:bg-[url("/chatBG-black.jpg")]'>
             <ScrollArea className='min-h-0 flex-1'>
                 <div className='flex flex-col gap-3 p-4 '>
-                    {loading && Array.from({length:6},(_, index)=>(
-                            <ChatSkeleton value={index} />
+                    {loading && Array.from({ length: 6 }, (_, index) => (
+                        <ChatSkeleton value={index} />
                     ))}
 
                     {!loading && chatMessages.map((message) => {

@@ -3,8 +3,6 @@ import HomeInput from './HomeInput'
 import { ScrollArea } from '../ui/scroll-area'
 import ChatSkeleton from './skeletons/ChatSkeleton'
 import { useAppSelector } from '@/App/hooks'
-import chatBgWhite from '@/assets/chatBG-white.jpg'
-import chatBgBlack from '@/assets/chatBG-black.jpg'
 
 type Message = {
     msgId: string
@@ -35,21 +33,8 @@ const HomeChats = () => {
     }
 
     return (
-        <div className='relative flex min-h-0 grow flex-col'>
-            <img
-                src={chatBgWhite}
-                alt=""
-                aria-hidden="true"
-                className='pointer-events-none absolute inset-0 h-full w-full object-cover dark:hidden'
-            />
-            <img
-                src={chatBgBlack}
-                alt=""
-                aria-hidden="true"
-                className='pointer-events-none absolute inset-0 hidden h-full w-full object-cover dark:block'
-            />
-
-            <ScrollArea className='relative min-h-0 flex-1'>
+        <div className='flex min-h-0 grow flex-col bg-[url("src/assets/chatBG-white.jpg")] dark:bg-[url("src/assets/chatBG-black.jpg")]'>
+            <ScrollArea className='min-h-0 flex-1'>
                 <div className='flex flex-col gap-3 p-4 '>
                     {loading && Array.from({length:6},(_, index)=>(
                             <ChatSkeleton value={index} />

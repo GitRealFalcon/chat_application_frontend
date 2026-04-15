@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarSeparator } from '@/components/ui/sidebar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Archive, BookOpen, Bot, Box, ChevronDown, ChevronRight, ChevronUp, FileText, Home, Inbox, LogOut, Plus, Send, Settings, SlidersHorizontal, SquareTerminal, Trash2, User, User2 } from 'lucide-react'
+import { Archive, BookOpen, Bot, Box, ChevronDown, ChevronRight, ChevronUp, FileText, Home, Inbox, LogOut, Plus, Send, Settings, SlidersHorizontal, SquareTerminal, Trash2, User, User2, UserRoundCheck, UserRoundMinus, UserRoundPen, UserRoundX } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { ProfileSheet } from './ProfileSheet'
@@ -11,6 +11,10 @@ import type { Message } from '@/types/Message'
 import { directTyping } from '@/utils/helpers'
 import axiosInstance from '@/services/API/axiosInstans'
 import chatRoundIcon from '@/assets/chat-round.svg'
+import ChatRequestSheet from './ChatRequestSheet'
+import SettingSheet from './SettingSheet'
+import BlockSheet from './BlockSheet'
+import { logoutUser } from '@/features/auth/authSlice'
 
 
 
@@ -50,9 +54,6 @@ const HomeSidebar = () => {
     }
 
     return Chats.map(contact => {
-      const chatMessages = messages[contact._id] ?? []
-      const lastChatMessage = chatMessages[chatMessages.length - 1]
-
       return {
         title: contact.name,
         _id: contact._id,
@@ -65,7 +66,7 @@ const HomeSidebar = () => {
     setContacts(GetContacts())
   }, [Chats, messages])
 
-  const handleContactChat =  (contact: contact) => {
+  const handleContactChat = (contact: contact) => {
     dispatch(setActiveChat({
       _id: contact._id,
       chat: "direct",
@@ -75,6 +76,10 @@ const HomeSidebar = () => {
     dispatch(updateMessageStatus(contact._id))
     dispatch(getMessage(contact._id))
 
+  }
+
+  const handleLogout = () => {
+    dispatch(logoutUser())
   }
 
   return (
@@ -128,9 +133,7 @@ const HomeSidebar = () => {
             {contacts && contacts.map((item) => {
               const chatMessages = messages[item._id] ?? []
               const lastChatMessage = chatMessages[chatMessages.length - 1]
-              const receivedMessage = chatMessages.filter(message => message.sender !== user._id) 
-              console.log(messages);
-              
+              const receivedMessage = chatMessages.filter(message => message.sender !== user._id)
               const unread = receivedMessage.filter(message => message.status === 'sent').length
               const time = lastChatMessage?.ts
                 ? new Date(lastChatMessage.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -146,6 +149,7 @@ const HomeSidebar = () => {
               group-data-[collapsible=icon]:p-0
               group-data-[collapsible=icon]:justify-center
               capitalize
+              cursor-pointer
             "
                 >
                   <div
@@ -209,6 +213,7 @@ const HomeSidebar = () => {
               group-data-[collapsible=icon]:size-16
               group-data-[collapsible=icon]:p-0
               group-data-[collapsible=icon]:justify-center
+              cursor-pointer
             "
                 >
                   <div
@@ -242,18 +247,41 @@ const HomeSidebar = () => {
                 <ProfileSheet
                   trigger={
                     <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
-                      <User2 />
+                      <User2 className="mr-2 size-4" />
                       Profile
                     </DropdownMenuItem>
                   }
                 />
 
-                <DropdownMenuItem>
-                  <Settings className="mr-2 size-4" />
-                  Setting
-                </DropdownMenuItem>
+                <ChatRequestSheet
+                  trigger={
+                    <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                      <UserRoundPen className="mr-2 size-4" />
+                      Chat Request
+                    </DropdownMenuItem>
+                  }
+                />
 
-                <DropdownMenuItem variant="destructive">
+                <BlockSheet
+                  trigger={
+                    <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                      <UserRoundX className="mr-2 size-4" />
+                      Block List
+                    </DropdownMenuItem>
+                  }
+                />
+
+
+                <SettingSheet
+                  trigger={
+                    <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                      <Settings className="mr-2 size-4" />
+                      Setting
+                    </DropdownMenuItem>
+                  }
+                />
+
+                <DropdownMenuItem onClick={handleLogout} variant="destructive">
                   <LogOut className="mr-2 size-4" />
                   <span>LogOut</span>
                 </DropdownMenuItem>

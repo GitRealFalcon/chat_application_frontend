@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getOnlineUsersAPI, getUserByIdAPI, searchUserAPI,addChatAPI } from "./userAPI";
+import { getOnlineUsersAPI, getUserByIdAPI, searchUserAPI, acceptRequestApi, friendRequestApi, rejectRequestApi } from "./userAPI";
 import { User } from "@/types/User";
 
 type UserState = {
@@ -85,15 +85,42 @@ export const searchUser = createAsyncThunk(
   },
 );
 
-export const addChat = createAsyncThunk(
-  "user/addChat",
-  async (data: any,thunkAPI)=>{
+export const sendFriendRequest = createAsyncThunk(
+  "user/sendFriendRequest",
+  async (reqId: string, thunkAPI) => {
     try {
-     const res = await  addChatAPI(data)
-     return res.data
+      const res = await friendRequestApi(reqId)
+      return res.data
     } catch (error) {
-       return thunkAPI.rejectWithValue(
-        error.response?.data || "addChat error",
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "send friend request error",
+      );
+    }
+  }
+)
+
+export const rejectFriendRequest = createAsyncThunk(
+  "user/rejectFriendRequest",
+  async (reqId: string, thunkAPI) => {
+    try {
+      const res = await rejectRequestApi(reqId)
+      return res.data
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "reject friend request error",
+      );
+    }
+  }
+)
+export const acceptFriendRequest = createAsyncThunk(
+  "user/rejectFriendRequest",
+  async (reqId: string, thunkAPI) => {
+    try {
+      const res = await acceptRequestApi(reqId)
+      return res.data
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "accept friend request error",
       );
     }
   }
@@ -103,8 +130,8 @@ const userSlice = createSlice({
   name: "user",
 
   initialState: {
-    onlineUser: [] , 
-    searchUser: [] , 
+    onlineUser: [],
+    searchUser: [],
     userById: {},
     error: null,
     loading: false,
@@ -124,15 +151,18 @@ const userSlice = createSlice({
 
       state.onlineUser = state.onlineUser.filter((id) => id !== userId);
     },
-    resetSearchUser: (state)=>{
+    resetSearchUser: (state) => {
       state.searchUser = []
+    },
+    setSearchUser: (state, action) => {
+      state.searchUser = action.payload
     }
   },
 
   extraReducers: (builder) => {
     builder
 
-     
+
       .addCase(getOnlineUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -146,7 +176,7 @@ const userSlice = createSlice({
         state.error = action.payload;
       })
 
-     
+
       .addCase(getUserById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -160,7 +190,7 @@ const userSlice = createSlice({
         state.error = String(action.payload ?? "get UserById error");
       })
 
-     
+
       .addCase(searchUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -174,19 +204,8 @@ const userSlice = createSlice({
         state.error = String(action.payload ?? "searchUser error");
       })
 
-      .addCase(addChat.pending, (state,action)=>{
-        state.error = null
-        state.loading = true
-      })
-      .addCase(addChat.fulfilled,(state,action)=>{
-        state.loading = false
-      })
-      .addCase(addChat.rejected,(state,action)=>{
-        state.loading = false
-        state.error = String(action.payload ?? "addChat error")
-      })
   },
 });
 
-export const { addOnlineUser, removeOnlineUser, resetSearchUser } = userSlice.actions;
+export const { addOnlineUser, removeOnlineUser, resetSearchUser, setSearchUser } = userSlice.actions;
 export default userSlice.reducer;

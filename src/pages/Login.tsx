@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { loginUser } from '../features/auth/authSlice'
 import { useAppDispatch,useAppSelector } from '../App/hooks'
 import { Navigate } from 'react-router-dom'
-import SpinButton from '../components/Loaders/SpinButton'
+import { Spinner } from '@/components/ui/spinner'
+import { Button } from '@/components/ui/button'
 
 const Login = () => {
   const user = useAppSelector(state => state.auth.user)
@@ -47,7 +48,7 @@ const Login = () => {
             <label className='font-medium text-gray-200 p-1' htmlFor="password">Password</label>
             <input onChange={handleChange} className='p-2 rounded-lg placeholder:text-gray-500 text-gray-200 text-lg bg-[#13232e] border-2 border-[#294455] outline-none' value={formData.password} name='password' type="password" id='password' placeholder='Password' />
           </div>
-          <SpinButton loading={loading} clickButton={handleClick} className={"w-full"} text="Login" />
+          <Button onClick={handleClick} className={"w-full"}  >{loading && <Spinner/>} Login</Button>
           
           {error && <div className='text-red-500 text-center'>{error.message}</div>}
           {success && <div className='text-green-500 text-center'>{message}</div>}

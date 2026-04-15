@@ -92,6 +92,8 @@ const chatSlice = createSlice({
     setActiveChat: (state, action) => {
       state.activeChat = action.payload;
     },
+
+   
   },
 
   extraReducers: (builder) => {

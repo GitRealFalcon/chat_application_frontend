@@ -1,4 +1,3 @@
-import { useAppSelector } from "@/App/hooks"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,18 +13,14 @@ import {
 } from "@/components/ui/sheet"
 import { User2 } from "lucide-react"
 import type { ReactNode } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { Separator } from "../ui/separator"
-
 
 type ProfileSheetProps = {
   trigger?: ReactNode
 }
 
-export function ProfileSheet({ trigger }: ProfileSheetProps) {
-  const user = useAppSelector(state=> state.auth.user)
+const ChatRequestSheet = ({ trigger }: ProfileSheetProps) => {
   return (
-    <Sheet>
+     <Sheet>
       <SheetTrigger asChild>
         {trigger ?? (
           <button
@@ -39,27 +34,21 @@ export function ProfileSheet({ trigger }: ProfileSheetProps) {
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>User profile</SheetTitle>
+          <SheetTitle>Chat Request</SheetTitle>
           <SheetDescription>
             Make changes to your profile here. Click save when you&apos;re done.
           </SheetDescription>
         </SheetHeader>
-        <div className="flex flex-col items-center gap-2 px-4">
-          <Avatar className="size-32 shrink-0 rounded-full">
-            <AvatarImage
-              src={user?.avatar} alt="@shadcn"
-              className="h-full w-full object-cover"
-            />
-            <AvatarFallback>LG</AvatarFallback>
-          </Avatar>
-          <div className="text-center font-semibold text-2xl">
-            {user.name}
+        <div className="grid flex-1 auto-rows-min gap-6 px-4">
+          <div className="grid gap-3">
+            <Label htmlFor="sheet-demo-name">Name</Label>
+            <Input id="sheet-demo-name" defaultValue="Pedro Duarte" />
           </div>
-          <div className="text-center font-semibold">
-            {user.email}
+          <div className="grid gap-3">
+            <Label htmlFor="sheet-demo-username">Username</Label>
+            <Input id="sheet-demo-username" defaultValue="@peduarte" />
           </div>
         </div>
-        <Separator/>
         <SheetFooter>
           <Button type="submit">Save changes</Button>
           <SheetClose asChild>
@@ -70,3 +59,5 @@ export function ProfileSheet({ trigger }: ProfileSheetProps) {
     </Sheet>
   )
 }
+
+export default ChatRequestSheet

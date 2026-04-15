@@ -9,7 +9,6 @@ import {
   removeOnlineUser
 } from "../../features/user/userSlice";
 import store from "../../App/store";
-import { Toast } from "../../pages/Home2";
 import * as z from "zod";
 import type { Socket } from "socket.io-client";
 import { MessageSchema } from "@/schemas/MessageSchema";
@@ -29,8 +28,7 @@ export const registerSocketListener = (socket: Socket) => {
 
   // -------------------- Direct Messages --------------------
   socket.on("direct:message", (message: SocketMessage) => {
-    Toast(message, user._id);
-
+    
     store.dispatch(
       addMessage({
         userId : user._id,

@@ -50,11 +50,7 @@ const HomeNavbar = () => {
                 </DropdownMenuItem>
               }
             />
-            <DropdownMenuItem variant='destructive' asChild>
-              <Link to={`/dashboard/settings`}>
-                <UserRoundXIcon /> Block
-              </Link>
-            </DropdownMenuItem>
+           
           </DropdownMenuContent>
         </DropdownMenu>}
       </div>

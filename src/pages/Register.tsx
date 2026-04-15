@@ -2,7 +2,8 @@ import React,{useState} from 'react'
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../App/hooks'
 import { registerUser } from '../features/auth/authSlice'
-import SpinButton from '../components/Loaders/SpinButton'
+import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 
 const Register = () => {
   const {loading,error,message} = useAppSelector(state => state.auth)
@@ -51,7 +52,7 @@ const Register = () => {
             <label className='font-medium text-gray-200 p-1' htmlFor="password">Password</label>
             <input onChange={handleChange} value={formData.password} name='password' className='p-2 rounded-lg placeholder:text-gray-500 text-gray-200 text-lg bg-[#13232e] border-2 border-[#294455] outline-none' type="password" id='password' placeholder='Password' />
           </div>
-          <SpinButton loading={loading} clickButton={handleClick} className={"w-full"} text="Register" />
+          <Button onClick={handleClick} className={"w-full"}  >{loading && <Spinner/>} Register</Button>
           {error && <div className='text-red-500 text-center'>{error.message}</div>}
           {message && <div className='text-green-500 text-center'>{message}</div>}
         </div>

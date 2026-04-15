@@ -14,55 +14,44 @@ import {
 import { Search, UserPlus2 } from "lucide-react"
 import { ScrollArea } from "../ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { useAppDispatch, useAppSelector } from "@/App/hooks"
+import { useEffect, useRef, useState } from "react"
+import { User } from "@/types/User"
+import { setSearchUser, searchUser, resetSearchUser } from "@/features/user/userSlice"
 
+
+type History = {
+    [id: string]: User[]
+}
 export function SearchSheet() {
-    const sidebarItems = [
-        {
-            title: "John Doe",
-            url: "/chat/john",
-            avatar: "https://i.pravatar.cc/150?img=1",
-            lastMessage: "Hey, are we meeting today?",
-            time: "10:45 AM",
-            unread: 2,
-            online: true,
-        },
-        {
-            title: "Emma Watson",
-            url: "/chat/emma",
-            avatar: "https://i.pravatar.cc/150?img=5",
-            lastMessage: "Sent the files ✔✔",
-            time: "9:30 AM",
-            unread: 0,
-            online: false,
-        },
-        {
-            title: "Team Project",
-            url: "/chat/team",
-            avatar: "https://i.pravatar.cc/150?img=12",
-            lastMessage: "Meeting starts in 15 mins",
-            time: "Yesterday",
-            unread: 8,
-            online: true,
-        },
-        {
-            title: "Sophia",
-            url: "/chat/sophia",
-            avatar: "https://i.pravatar.cc/150?img=20",
-            lastMessage: "😂😂😂",
-            time: "Yesterday",
-            unread: 1,
-            online: false,
-        },
-        {
-            title: "Alex",
-            url: "/chat/alex",
-            avatar: "https://i.pravatar.cc/150?img=15",
-            lastMessage: "Voice message",
-            time: "Mon",
-            unread: 0,
-            online: true,
-        },
-    ]
+    const [text, setText] = useState("")
+    const [history, setHistory] = useState<History>({})
+    const user = useAppSelector(state=> state.auth.user)
+    const searchUsers = useAppSelector(state => state.user.searchUser)
+    const dispatch = useAppDispatch()
+
+
+    useEffect(() => {
+        if (!text.trim()) return;
+
+        const timeout = setTimeout(() => {
+           
+            const findInHistory = history[text]
+            if (findInHistory) {
+                dispatch(setSearchUser(findInHistory))    
+            } else {
+                dispatch(searchUser(text)).unwrap().then((res:User[]) =>
+                    setHistory((prev) => ({ ...prev, [text]: res }))    
+                )
+            }
+        }, 500);
+
+        return () => {
+            dispatch(resetSearchUser())
+            clearTimeout(timeout);
+        }
+    }, [text])
+
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -78,24 +67,24 @@ export function SearchSheet() {
                 <div className="flex flex-col gap-6 px-4">
                     <div className="grid gap-3">
                         <Label htmlFor="sheet-demo-username">Name</Label>
-                        <Input id="sheet-demo-username" placeholder="John Doe" />
+                        <Input value={text} onChange={e => setText(e.target.value)} id="sheet-demo-username" placeholder="John Doe" />
                     </div>
                     <ScrollArea className="grow ">
-                        {sidebarItems.map((item) => (
-                            <div key={item.title} className="flex justify-between items-center mt-2 bg-muted p-2 border-2 rounded-2xl">
-                                <div className="flex gap-2">
+                        {searchUsers && searchUsers.map((item) => (
+                            <div key={item._id} className={` ${user._id === item._id ? "hidden" : "flex"}  justify-between items-center mt-2 bg-muted p-2 border-2 rounded-2xl`}>
+                                <div className="flex items-center gap-2">
                                     <Avatar>
                                         <AvatarImage
-                                            src={item.avatar}
+                                            src={item?.avatar}
                                             className="h-full w-full object-cover"
                                         />
                                         <AvatarFallback>
-                                            {item.title.slice(0, 2)}
+                                            {item.name.slice(0, 2)}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <span className="font-semibold">{item.title}</span>
+                                    <span className="font-semibold">{item.name}</span>
                                 </div>
-                                <Button variant="outline" size="icon"><UserPlus2 /></Button>
+                                <Button disabled={user.Chats.some(chat => chat._id === item._id)} variant="outline" size="icon"><UserPlus2 /></Button>
                             </div>
                         ))}
 

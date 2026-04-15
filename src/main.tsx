@@ -9,7 +9,6 @@ import Home from './pages/Home'
 import { RouterProvider } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from './App/store'
-import Home2 from './pages/Home2'
 import { ThemeProvider } from './components/theme-provider'
 
 
@@ -25,10 +24,6 @@ const router = createBrowserRouter([
             <Home/>
           </Protected>
         )
-      },
-      {
-        path:"/home",
-        element: <Home2/>
       },
       {
         path:"/register",

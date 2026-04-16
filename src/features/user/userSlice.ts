@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getOnlineUsersAPI, getUserByIdAPI, searchUserAPI} from "./userAPI";
+import { getOnlineUsersAPI, getUserByIdAPI, searchUserAPI, blockUserAPI, unBlockUserAPI } from "./userAPI";
 import { User } from "@/types/User";
 
 type UserState = {
@@ -65,6 +65,34 @@ export const getUserById = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data || "get UserById error",
+      );
+    }
+  },
+);
+
+export const blockUser = createAsyncThunk(
+  "user/blockUser",
+  async (chatId: string, thunkAPI) => {
+    try {
+      const res = await blockUserAPI(chatId);
+      return res
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "Block user error",
+      );
+    }
+  },
+);
+
+export const unBlockUser = createAsyncThunk(
+  "user/unBlockUser",
+  async (chatId: string, thunkAPI) => {
+    try {
+      const res = await unBlockUserAPI(chatId);
+      return res
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "unBlock user error",
       );
     }
   },

@@ -6,7 +6,7 @@ export type User = {
     email: string,
     Chats?: User[],
     JoinedGroups?: Group[],
-    Blocked?: string[],
+    Blocked?: User[],
     avatar?: string,
     ChatRequests?: User[]
 }

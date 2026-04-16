@@ -11,13 +11,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Ban, Bell, Filter, RefreshCcwIcon, Trash2, User2, UserPlus2 } from "lucide-react"
+import { Ban, Bell, Filter, RefreshCcwIcon, Trash2, User2, UserPlus2, UserPlus2Icon } from "lucide-react"
 import { useEffect, useState, type ReactNode } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { useAppSelector } from "@/App/hooks"
+import { useAppDispatch, useAppSelector } from "@/App/hooks"
 import { Separator } from "../ui/separator"
 import { User } from "@/types/User"
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "../ui/empty"
+import { blockUser } from "@/features/user/userSlice"
+import { toast } from "sonner"
+import { getUser } from "@/features/auth/authSlice"
+import { clearActiveChat } from "@/features/chat/chatSlice"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
 
 type ProfileSheetProps = {
   trigger?: ReactNode
@@ -27,14 +32,43 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
   const [contact, setContact] = useState<User>()
   const { activeChat } = useAppSelector(state => state.chat)
   const user = useAppSelector(state => state.auth.user)
-  console.log(activeChat);
-  
+  const dispatch = useAppDispatch()
+
   useEffect(() => {
     if (activeChat) {
       const activeUser = user?.Chats.find(contact => contact._id === activeChat._id)
       setContact(activeUser)
     }
   }, [activeChat])
+
+  const handleBlock = async (chatId: string) => {
+    try {
+      const res = await dispatch(blockUser(chatId)).unwrap()
+      dispatch(clearActiveChat())
+      dispatch(getUser())
+      toast.success(`${activeChat.title} blocked ✅`, { position: "top-right" })
+    } catch (error) {
+      toast.error(error)
+    }
+  }
+
+  const empty = (<Empty className="h-full bg-muted/30">
+    <EmptyHeader>
+      <EmptyMedia variant="icon">
+        <UserPlus2 />
+      </EmptyMedia>
+      <EmptyTitle>No Active Chat</EmptyTitle>
+      <EmptyDescription className="max-w-xs text-pretty">
+        You&apos;re all caught up. Select Chat will appear here.
+      </EmptyDescription>
+    </EmptyHeader>
+    <EmptyContent>
+      <Button variant="outline">
+        <RefreshCcwIcon />
+        Refresh
+      </Button>
+    </EmptyContent>
+  </Empty>)
 
   return (
     <Sheet>
@@ -70,31 +104,60 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
         </div>
           <Separator />
           <div className="flex flex-col gap-2 w-full">
-            <div className="flex gap-4 items-center text-red-400 hover:bg-muted w-full p-4 rounded-2xl">
-              <Ban size={16} />
-              <span className="font-bold">Block</span>
-            </div>
-            <div className="flex gap-4 items-center text-red-400 hover:bg-muted w-full p-4 rounded-2xl">
-              <Trash2 size={16} />
-              <span className="font-bold">Delete Chat</span>
-            </div>
-          </div></>) : <Empty className="h-full bg-muted/30">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <UserPlus2 />
-            </EmptyMedia>
-            <EmptyTitle>No Active Chat</EmptyTitle>
-            <EmptyDescription className="max-w-xs text-pretty">
-              You&apos;re all caught up. Select Chat will appear here.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <Button variant="outline">
-              <RefreshCcwIcon />
-              Refresh
-            </Button>
-          </EmptyContent>
-        </Empty>}
+            {/* Block */}
+
+            <AlertDialog >
+              <AlertDialogTrigger asChild>
+                <div className="flex gap-4 items-center text-red-400 hover:bg-muted w-full p-4 rounded-2xl">
+                  <Ban size={16} />
+                  <span className="font-bold">Block</span>
+                </div>
+              </AlertDialogTrigger>
+              <AlertDialogContent size="sm">
+                <AlertDialogHeader>
+                  <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                    <Ban />
+                  </AlertDialogMedia>
+                  <AlertDialogTitle>Block {activeChat.title}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action will block the selected user.
+                    They will no longer be able to send you messages.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel  >Close</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => handleBlock(activeChat._id)} variant="destructive">Block Chat</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Delete */}
+            <AlertDialog >
+              <AlertDialogTrigger asChild>
+                <div className="flex gap-4 items-center text-red-400 hover:bg-muted w-full p-4 rounded-2xl">
+                  <Trash2 size={16} />
+                  <span className="font-bold">Delete Chat</span>
+                </div>
+              </AlertDialogTrigger>
+              <AlertDialogContent size="sm">
+                <AlertDialogHeader>
+                  <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                    <Trash2 />
+                  </AlertDialogMedia>
+                  <AlertDialogTitle>Delete {activeChat.title}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action will permanently remove the selected chat.
+                    You won’t be able to restore the deleted conversation.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel >Close</AlertDialogCancel>
+                  <AlertDialogAction variant="destructive">Delete Chat</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+          </div></>) : empty}
 
         <SheetFooter>
 

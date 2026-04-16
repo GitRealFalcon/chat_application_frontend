@@ -36,6 +36,7 @@ const HomeSidebar = () => {
   const dispatch = useAppDispatch()
   const Chats = useAppSelector(state => state.auth.user?.Chats)
   const user = useAppSelector(state => state.auth.user)
+  const blocked = useAppSelector(state => state.auth.user.Blocked)
   const onlineUser = useAppSelector(state => state.user.onlineUser)
   const { messages, activeChat } = useAppSelector(state => state.chat)
   const { typing } = useAppSelector(state => state.notification)
@@ -53,7 +54,9 @@ const HomeSidebar = () => {
       return []
     }
 
-    return Chats.map(contact => {
+    const blockFilter = blocked.length > 0 ? Chats.filter((chat)=> blocked.some((block)=> chat._id !== block._id)) : Chats
+
+    return blockFilter.map(contact => {
       return {
         title: contact.name,
         _id: contact._id,
@@ -64,7 +67,7 @@ const HomeSidebar = () => {
 
   useEffect(() => {
     setContacts(GetContacts())
-  }, [Chats, messages])
+  }, [Chats, messages, blocked])
 
   const handleContactChat = (contact: contact) => {
     dispatch(setActiveChat({

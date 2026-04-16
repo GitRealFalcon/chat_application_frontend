@@ -15,3 +15,12 @@ export const getOnlineUsersAPI = async (): Promise<ApiResponse> => {
     return res.data
 }
 
+export const blockUserAPI = async (chatId: string): Promise<ApiResponse> => {
+    const res = await axiosInstance.patch(`/user/block/${chatId}`)
+    return res.data
+}
+export const unBlockUserAPI = async (chatId: string): Promise<ApiResponse> => {
+    const res = await axiosInstance.patch(`/user/unblock/${chatId}`)
+    return res.data
+}
+

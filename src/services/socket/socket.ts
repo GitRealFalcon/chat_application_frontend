@@ -1,22 +1,32 @@
 import { io } from "socket.io-client";
 
-let socket = null
+let socket = null;
 
-export const initSocket = ()=>{
-        socket = io(import.meta.env.VITE_API_SOCKET_URL,{
-            withCredentials:true,
-            transports:["websocket"],
-            autoConnect:true
-        })
+export const initSocket = () => {
+  if (!socket) {
+    socket = io(import.meta.env.VITE_API_SOCKET_URL, {
+      withCredentials: true,
+      transports: ["websocket"],
+      autoConnect: false,
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+    });
+  }
 
-        return socket
-}
+  if (!socket.connected) {
+    socket.connect();
+  }
 
-export const getSocket = ()=> socket;
+  return socket;
+};
 
-export const disconnectSocket = ()=>{
-    if (socket) {
-        socket.disconnect();
-        socket = null
-    }
-}
+export const getSocket = () => socket;
+
+export const disconnectSocket = () => {
+  if (socket) {
+    socket.removeAllListeners();
+    socket.disconnect();
+    socket = null;
+  }
+};

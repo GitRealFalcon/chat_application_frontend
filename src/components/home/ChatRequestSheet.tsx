@@ -37,7 +37,6 @@ const ChatRequestSheet = ({ trigger }: ProfileSheetProps) => {
     const fetchRequests = async () => {
       try {
         const res = await dispatch(getFriendRequests()).unwrap()
-        toast.success(res.message, { position: "top-right" })
       } catch (error) {
         toast.error(error, { position: "top-right" })
       }

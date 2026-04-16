@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getOnlineUsersAPI, getUserByIdAPI, searchUserAPI, acceptRequestApi, friendRequestApi, rejectRequestApi } from "./userAPI";
+import { getOnlineUsersAPI, getUserByIdAPI, searchUserAPI} from "./userAPI";
 import { User } from "@/types/User";
 
 type UserState = {
@@ -85,46 +85,7 @@ export const searchUser = createAsyncThunk(
   },
 );
 
-export const sendFriendRequest = createAsyncThunk(
-  "user/sendFriendRequest",
-  async (reqId: string, thunkAPI) => {
-    try {
-      const res = await friendRequestApi(reqId)
-      return res.data
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || "send friend request error",
-      );
-    }
-  }
-)
 
-export const rejectFriendRequest = createAsyncThunk(
-  "user/rejectFriendRequest",
-  async (reqId: string, thunkAPI) => {
-    try {
-      const res = await rejectRequestApi(reqId)
-      return res.data
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || "reject friend request error",
-      );
-    }
-  }
-)
-export const acceptFriendRequest = createAsyncThunk(
-  "user/rejectFriendRequest",
-  async (reqId: string, thunkAPI) => {
-    try {
-      const res = await acceptRequestApi(reqId)
-      return res.data
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || "accept friend request error",
-      );
-    }
-  }
-)
 
 const userSlice = createSlice({
   name: "user",

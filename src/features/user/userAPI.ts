@@ -15,16 +15,3 @@ export const getOnlineUsersAPI = async (): Promise<ApiResponse> => {
     return res.data
 }
 
-export const friendRequestApi = async (reqId: string): Promise<ApiResponse> => {
-    const res = await axiosInstance.patch(`/user/request/${reqId}`)
-    return res.data
-}
-
-export const acceptRequestApi = async (reqId: string): Promise<ApiResponse> => {
-    const res = await axiosInstance.patch(`/user/accept/${reqId}`)
-    return res.data
-}
-export const rejectRequestApi = async (reqId: string): Promise<ApiResponse> => {
-    const res = await axiosInstance.patch(`/user/reject/${reqId}`)
-    return res.data
-}

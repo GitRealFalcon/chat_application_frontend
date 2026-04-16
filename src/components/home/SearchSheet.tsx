@@ -11,13 +11,17 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { Search, UserPlus2 } from "lucide-react"
+import { Search, UserCheck2, UserPlus2, Verified } from "lucide-react"
 import { ScrollArea } from "../ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { useAppDispatch, useAppSelector } from "@/App/hooks"
 import { useEffect, useRef, useState } from "react"
 import { User } from "@/types/User"
-import { setSearchUser, searchUser, resetSearchUser } from "@/features/user/userSlice"
+import { setSearchUser, searchUser, resetSearchUser, } from "@/features/user/userSlice"
+import { ApiResponse } from "@/types/ApiResponse"
+import { toast } from "sonner"
+import { FriendRequest, getFriendRequests, sendFriendRequest } from "@/features/friendRequest/friendRequestSlice"
+
 
 
 type History = {
@@ -26,22 +30,34 @@ type History = {
 export function SearchSheet() {
     const [text, setText] = useState("")
     const [history, setHistory] = useState<History>({})
-    const user = useAppSelector(state=> state.auth.user)
+    const [sentRequests, setSentRequests] = useState<FriendRequest[]>()
+    const user = useAppSelector(state => state.auth.user)
     const searchUsers = useAppSelector(state => state.user.searchUser)
+    const friendRequests = useAppSelector(state => state.friendRequest.friendRequests)
     const dispatch = useAppDispatch()
+    console.log(sentRequests);
+    
 
+    useEffect(() => {
+        if (friendRequests) {
+            const sent = friendRequests.filter((request) => (request.requestSender._id === user._id) && request.status === "pending")
+            if (sent) {
+                setSentRequests(sent)
+            }
+        }
+    }, [friendRequests])
 
     useEffect(() => {
         if (!text.trim()) return;
 
         const timeout = setTimeout(() => {
-           
+
             const findInHistory = history[text]
             if (findInHistory) {
-                dispatch(setSearchUser(findInHistory))    
+                dispatch(setSearchUser(findInHistory))
             } else {
-                dispatch(searchUser(text)).unwrap().then((res:User[]) =>
-                    setHistory((prev) => ({ ...prev, [text]: res }))    
+                dispatch(searchUser(text)).unwrap().then((res: User[]) =>
+                    setHistory((prev) => ({ ...prev, [text]: res }))
                 )
             }
         }, 500);
@@ -51,6 +67,22 @@ export function SearchSheet() {
             clearTimeout(timeout);
         }
     }, [text])
+
+    useEffect(() => {
+        dispatch(getFriendRequests())
+    }, [dispatch])
+
+    const handleSendRequest = async (reqId: string) => {
+        try {
+            const res = await dispatch(sendFriendRequest(reqId)).unwrap()
+            dispatch(getFriendRequests())
+            toast.success(res, { position: "top-right" })
+
+        } catch (error) {
+            toast.error(error.message, { position: "top-right" })
+        }
+
+    }
 
     return (
         <Sheet>
@@ -84,7 +116,26 @@ export function SearchSheet() {
                                     </Avatar>
                                     <span className="font-semibold">{item.name}</span>
                                 </div>
-                                <Button disabled={user.Chats.some(chat => chat._id === item._id)} variant="outline" size="icon"><UserPlus2 /></Button>
+                                <Button
+                                    onClick={() => handleSendRequest(item._id)}
+                                    disabled={
+                                        user.Chats &&
+                                        user.Chats.some(chat => chat._id === item._id) ||
+                                        sentRequests.some((request) => request.requestReceiver._id === item._id)
+                                    }
+                                    variant="outline"
+                                    size="icon"
+                                >
+                                    {
+                                        user.Chats &&
+                                            user.Chats.some(chat => chat._id === item._id) ?
+                                            <Verified /> :
+                                            sentRequests.some((request) => request.requestReceiver._id === item._id) ?
+                                                <UserCheck2 /> :
+                                                <UserPlus2 />
+                                    }
+                                </Button>
+
                             </div>
                         ))}
 

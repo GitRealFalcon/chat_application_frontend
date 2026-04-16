@@ -5,6 +5,7 @@ import userReducer from "../features/user/userSlice"
 import notificationReducer from "../features/notification/notificationSlice"
 import themeReducer from "../features/theme/themeSlice"
 import groupReducer from "../features/group/groupSlice"
+import friendRequestReducer from "../features/friendRequest/friendRequestSlice"
 
 
 import { injectStore } from "../services/API/axiosInstans";
@@ -16,7 +17,8 @@ const store = configureStore({
         user:userReducer,
         notification:notificationReducer,
         theme:themeReducer,
-        group:groupReducer
+        group:groupReducer,
+        friendRequest: friendRequestReducer
     }
 })
 

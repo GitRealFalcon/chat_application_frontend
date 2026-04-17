@@ -2,11 +2,13 @@ import React, { useEffect, useRef } from 'react'
 import HomeInput from './HomeInput'
 import { ScrollArea } from '../ui/scroll-area'
 import ChatSkeleton from './skeletons/ChatSkeleton'
-import { useAppSelector } from '@/App/hooks'
+import { useAppDispatch, useAppSelector } from '@/App/hooks'
 import chatWhite from "@/assets/chatBG-white.jpg";
 import chatBlack from "@/assets/chatBG-black.jpg";
 import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '../ui/context-menu'
 import { Copy, Forward, PencilIcon, ShareIcon, TrashIcon } from 'lucide-react'
+import { deleteOneMessage, deleteOneMessageReducer } from '@/features/chat/chatSlice'
+import { toast } from 'sonner'
 
 
 type Message = {
@@ -25,6 +27,7 @@ const HomeChats = () => {
     const user = useAppSelector(state => state.auth.user)
     const chatMessages = messages[activeChat._id] ?? []
     const bottomRef = useRef(null)
+    const dispatch = useAppDispatch()
 
     useEffect(() => {
         bottomRef?.current.scrollIntoView({ behavior: "smooth" })
@@ -37,10 +40,31 @@ const HomeChats = () => {
         })
     }
 
+    const handleDeleteOne = async(chatId: string, msgId: string)=>{
+            try {
+                await dispatch(deleteOneMessage(msgId)).unwrap()
+                dispatch(deleteOneMessageReducer({chatId,msgId}))
+            } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        toast.error(String((error as any).message),{position: "top-right"})
+      } else {
+        toast.error("Something went wrong",{position: "top-right"})
+      }
+    }
+    }
+
+    const handleCopy = (text: string)=>{
+        window.navigator.clipboard.writeText(text)
+        toast.success(`Message copied`,{position:"top-right"})
+    }
+
     return (
         <div className='flex min-h-0 grow flex-col bg-repeat
-    bg-[length:320px]
- bg-[url("/chatBG-white.jpg")] dark:bg-[url("/chatBG-black.jpg")]'>
+    bg-[length:320px] bg-[url("/chatBG-white.jpg")] dark:bg-[url("/chatBG-black.jpg")]'>
             <ScrollArea className='min-h-0 flex-1'>
                 <div className='flex flex-col gap-3 p-4 '>
                     {loading && Array.from({ length: 6 }, (_, index) => (
@@ -73,7 +97,7 @@ const HomeChats = () => {
                                 </ContextMenuTrigger>
                                 <ContextMenuContent>
                                     <ContextMenuGroup>
-                                        <ContextMenuItem>
+                                        <ContextMenuItem onClick={()=> handleCopy(message.text)}>
                                             <Copy />
                                             Copy
                                         </ContextMenuItem>
@@ -84,7 +108,7 @@ const HomeChats = () => {
                                     </ContextMenuGroup>
                                     <ContextMenuSeparator />
                                     <ContextMenuGroup>
-                                        <ContextMenuItem variant="destructive">
+                                        <ContextMenuItem onClick={()=> handleDeleteOne(activeChat._id,message.msgId)} variant="destructive">
                                             <TrashIcon />
                                             Delete
                                         </ContextMenuItem>

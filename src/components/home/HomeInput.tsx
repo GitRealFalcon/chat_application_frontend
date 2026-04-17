@@ -14,6 +14,7 @@ const HomeInput = () => {
     const timeOutRef = useRef(null)
     const isTypingRef = useRef(false)
     const socket = getSocket()
+  
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setText(e.target.value)
@@ -68,10 +69,10 @@ const HomeInput = () => {
     }
     return (
         <div className='w-full  p-4'>
-            <form onSubmit={handleSubmit} className='flex border-2  rounded-4xl transition-colors bg-muted p-1 items-center'>
+            <form  onSubmit={handleSubmit} className='flex border-2  rounded-4xl transition-colors bg-muted p-1 items-center'>
                 <div className=' rounded-full flex items-center hover:bg-muted h-10 w-10'><Plus className='mx-auto' /></div>
-                <input value={text} onChange={handleChange} type="text" className='grow outline-none px-3 placeholder:text-muted-foreground  placeholder:font-semibold text-foreground' placeholder='Type a message' />
-                <Button type='submit' className='bg-green-700 rounded-full flex items-center  h-10 w-10'><SendHorizonal className='mx-auto text-black fill-black' /></Button>
+                <input disabled={!activeChat._id} value={text} onChange={handleChange} type="text" className='grow outline-none px-3 placeholder:text-muted-foreground  placeholder:font-semibold text-foreground' placeholder='Type a message' />
+                <Button disabled={!activeChat._id} type='submit' className='bg-green-700 rounded-full flex items-center  h-10 w-10'><SendHorizonal className='mx-auto text-black fill-black' /></Button>
             </form>
         </div>
     )

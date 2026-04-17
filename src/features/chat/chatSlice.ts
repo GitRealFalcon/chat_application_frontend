@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { messageAPI, groupMessageAPI, updateMessageStatusAPI } from "./chatAPI";
+import { messageAPI, groupMessageAPI, updateMessageStatusAPI, deleteAllMessageAPI, deleteOneMessageAPI } from "./chatAPI";
 import { Message } from "@/types/Message";
 
 type messages = {
@@ -51,17 +51,45 @@ export const getGroupMessage = createAsyncThunk<any, string>(
 
 export const updateMessageStatus = createAsyncThunk(
   "chat/updateStatus",
-  async (peerId: string, thunkAPI)=>{
-      try {
-        const res = await updateMessageStatusAPI(peerId)
-        return res.message
-      } catch (error) {
-        return thunkAPI.rejectWithValue(
+  async (peerId: string, thunkAPI) => {
+    try {
+      const res = await updateMessageStatusAPI(peerId)
+      return res.message
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
         error.response?.data || "update message status error"
       );
-      }
+    }
   }
 )
+export const deleteOneMessage = createAsyncThunk(
+  "chat/deleteOne",
+  async (msgId: string, thunkAPI) => {
+    try {
+      const res = await deleteOneMessageAPI(msgId)
+      return res.message
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "delete message error"
+      );
+    }
+  }
+)
+export const deleteAllMessage = createAsyncThunk(
+  "chat/deleteAll",
+  async (chatId: string, thunkAPI) => {
+    try {
+      const res = await deleteAllMessageAPI(chatId)
+      return res.message
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || "delete All messages error"
+      );
+    }
+  }
+)
+
+
 
 const chatSlice = createSlice({
   name: "chat",
@@ -89,14 +117,34 @@ const chatSlice = createSlice({
       state.messages[chatId].push(message);
     },
 
+    deleteAllMessageReducer: (state, action) => {
+      const chatId = action.payload;
+
+      if (!chatId || !state.messages[chatId]) return;
+
+      state.messages[chatId] = [];
+    },
+
+    deleteOneMessageReducer: (state, action) => {
+      const { chatId, msgId } = action.payload;
+
+      if (!chatId || !msgId || !state.messages[chatId]) return;
+
+      const messages = state.messages[chatId];
+      const index = messages.findIndex(m => m.msgId === msgId);
+
+      if (index === -1) return;
+
+      messages.splice(index, 1);
+    },
     setActiveChat: (state, action) => {
       state.activeChat = action.payload;
     },
 
-    clearActiveChat: (state)=>{
+    clearActiveChat: (state) => {
       state.activeChat = {} as ActiveChat
     }
-   
+
   },
 
   extraReducers: (builder) => {
@@ -133,5 +181,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { addMessage, setActiveChat, clearActiveChat } = chatSlice.actions;
+export const { addMessage, setActiveChat, clearActiveChat, deleteAllMessageReducer, deleteOneMessageReducer } = chatSlice.actions;
 export default chatSlice.reducer;

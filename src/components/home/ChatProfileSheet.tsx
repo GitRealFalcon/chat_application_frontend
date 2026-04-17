@@ -21,7 +21,7 @@ import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTi
 import { blockUser } from "@/features/user/userSlice"
 import { toast } from "sonner"
 import { getUser } from "@/features/auth/authSlice"
-import { clearActiveChat } from "@/features/chat/chatSlice"
+import { clearActiveChat, deleteAllMessage, deleteAllMessageReducer } from "@/features/chat/chatSlice"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
 
 type ProfileSheetProps = {
@@ -49,6 +49,23 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
       dispatch(clearActiveChat())
       dispatch(getUser())
       toast.success(`${activeChat.title} blocked ✅`, { position: "top-right" })
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        toast.error(String((error as any).message),{position: "top-right"})
+      } else {
+        toast.error("Something went wrong",{position: "top-right"})
+      }
+    }
+  }
+
+  const handleDeleteAll = async (chatId: string)=>{
+    try {
+      await dispatch(deleteAllMessage(chatId)).unwrap()
+      dispatch(deleteAllMessageReducer(chatId))
     } catch (error: unknown) {
       if (
         typeof error === "object" &&
@@ -162,7 +179,7 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel >Close</AlertDialogCancel>
-                  <AlertDialogAction variant="destructive">Delete Chat</AlertDialogAction>
+                  <AlertDialogAction onClick={()=> handleDeleteAll(activeChat._id)} variant="destructive">Delete Chat</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

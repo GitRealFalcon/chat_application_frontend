@@ -62,7 +62,7 @@ export const logoutUser = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user:<User> {},
+    user: null as User | null,
     isAuthenticated: false,
     loading: false,
     error: null,
@@ -75,6 +75,7 @@ const authSlice = createSlice({
     logout: (state)=>{
       state.user = null
       state.isAuthenticated =false
+      state.authChecked = true;
       state.message = null
       state.loading = false
     }
@@ -94,12 +95,14 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.data.user;
         state.isAuthenticated = true;
+        state.authChecked = true;
         state.success = action.payload.success 
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.isAuthenticated = false;
+        state.authChecked = true;
         state.success = (action.payload as any)?.success
       })
 
@@ -144,6 +147,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false
         state.loading = false
         state.user = null
+        state.authChecked = true;
       })
       .addCase(logoutUser.rejected,(state,action)=>{
         state.loading = false

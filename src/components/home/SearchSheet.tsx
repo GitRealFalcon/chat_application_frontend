@@ -35,8 +35,6 @@ export function SearchSheet() {
     const searchUsers = useAppSelector(state => state.user.searchUser)
     const friendRequests = useAppSelector(state => state.friendRequest.friendRequests)
     const dispatch = useAppDispatch()
-    console.log(sentRequests);
-    
 
     useEffect(() => {
         if (friendRequests) {

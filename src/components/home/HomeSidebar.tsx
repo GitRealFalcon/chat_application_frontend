@@ -53,7 +53,6 @@ const HomeSidebar = () => {
     if (!Chats) {
       return []
     }
-
     const blockFilter = blocked.length > 0 ? Chats.filter((chat)=> blocked.some((block)=> chat._id !== block._id)) : Chats
 
     return blockFilter.map(contact => {
@@ -69,14 +68,14 @@ const HomeSidebar = () => {
     setContacts(GetContacts())
   }, [Chats, messages, blocked])
 
-  const handleContactChat = (contact: contact) => {
+  const handleContactChat = async(contact: contact) => {
     dispatch(setActiveChat({
       _id: contact._id,
       chat: "direct",
       title: contact.title,
       avatar: contact.avatar
     }))
-    dispatch(updateMessageStatus(contact._id))
+    await dispatch(updateMessageStatus(contact._id)).unwrap()
     dispatch(getMessage(contact._id))
 
   }

@@ -5,6 +5,9 @@ import ChatSkeleton from './skeletons/ChatSkeleton'
 import { useAppSelector } from '@/App/hooks'
 import chatWhite from "@/assets/chatBG-white.jpg";
 import chatBlack from "@/assets/chatBG-black.jpg";
+import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '../ui/context-menu'
+import { Copy, Forward, PencilIcon, ShareIcon, TrashIcon } from 'lucide-react'
+
 
 type Message = {
     msgId: string
@@ -48,24 +51,47 @@ const HomeChats = () => {
                         const isMe = user._id === message.sender
 
                         return (
-                            <div
-                                key={message.msgId}
-                                className={`flex max-w-[70%] flex-col ${isMe ? "self-end" : "self-start"}`}
-                            >
-                                <div
-                                    className={`rounded-b-lg px-3 py-2 text-white text-sm ${isMe ? "bg-[#005c4b] rounded-l-lg" : "bg-[#202c33] rounded-r-lg"
-                                        }`}
-                                >
-                                    {message.text}
-                                </div>
+                            <ContextMenu>
+                                <ContextMenuTrigger key={message.msgId} className={`flex max-w-[70%] flex-col ${isMe ? "self-end" : "self-start"}`}>
+                                    <div
+                                        
+                                    >
+                                        <div
+                                            className={`rounded-b-lg px-3 py-2 text-white text-sm ${isMe ? "bg-[#005c4b] rounded-l-lg" : "bg-[#202c33] rounded-r-lg"
+                                                }`}
+                                        >
+                                            {message.text}
+                                        </div>
 
-                                <div
-                                    className={`mt-1 text-[11px] text-muted-foreground ${isMe ? "text-right" : "text-left"
-                                        }`}
-                                >
-                                    {formatTime(message.ts)}
-                                </div>
-                            </div>
+                                        <div
+                                            className={`mt-1 text-[11px] text-muted-foreground ${isMe ? "text-right" : "text-left"
+                                                }`}
+                                        >
+                                            {formatTime(message.ts)}
+                                        </div>
+                                    </div>
+                                </ContextMenuTrigger>
+                                <ContextMenuContent>
+                                    <ContextMenuGroup>
+                                        <ContextMenuItem>
+                                            <Copy />
+                                            Copy
+                                        </ContextMenuItem>
+                                        <ContextMenuItem>
+                                            <Forward />
+                                            Forward
+                                        </ContextMenuItem>
+                                    </ContextMenuGroup>
+                                    <ContextMenuSeparator />
+                                    <ContextMenuGroup>
+                                        <ContextMenuItem variant="destructive">
+                                            <TrashIcon />
+                                            Delete
+                                        </ContextMenuItem>
+                                    </ContextMenuGroup>
+                                </ContextMenuContent>
+                            </ContextMenu>
+
                         )
                     })}
                     <div ref={bottomRef} />

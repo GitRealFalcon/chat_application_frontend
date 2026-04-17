@@ -7,12 +7,14 @@ import { getUser } from "./features/auth/authSlice"
 import { getOnlineUser } from "./features/user/userSlice"
 
 function App() {
-  const { isAuthenticated } = useAppSelector(state => state.auth)
+  const { isAuthenticated, authChecked } = useAppSelector(state => state.auth)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
-    dispatch(getUser())
-  }, [dispatch])
+    if (!authChecked) {
+      dispatch(getUser());
+    }
+  }, [authChecked, dispatch]);
 
   useEffect(() => {
     if (isAuthenticated) {

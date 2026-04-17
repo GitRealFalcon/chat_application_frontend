@@ -6,11 +6,32 @@ export const initSocket = () => {
   if (!socket) {
     socket = io(import.meta.env.VITE_API_SOCKET_URL, {
       withCredentials: true,
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
       autoConnect: false,
       reconnection: true,
-      reconnectionAttempts: Infinity,
+      reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+    });
+
+    socket.on("connect", () => {
+      console.log("✅ Socket connected:", socket.id);
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("❌ Socket disconnected:", reason);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.log("⚠️ Socket error:", err.message);
+
+      if (err.message === "UNAUTHORIZED") {
+        disconnectSocket();
+        window.location.href = "/login";
+      }
+
+      if (err.message === "ACCESS_TOKEN_EXPIRED") {
+        disconnectSocket();
+      }
     });
   }
 
@@ -29,4 +50,9 @@ export const disconnectSocket = () => {
     socket.disconnect();
     socket = null;
   }
+};
+
+export const resetSocket = () => {
+  disconnectSocket();
+  return initSocket();
 };

@@ -1,61 +1,55 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { logout } from "../../features/auth/authSlice";
-import type { AppDispatch } from "../../App/store";
 
-type StoreLike = {
-  dispatch: AppDispatch;
-};
+let store: any = null;
 
-let store: StoreLike | null = null;
-
-export const injectStore = (_store: StoreLike) => {
+export const injectStore = (_store: any) => {
   store = _store;
 };
 
-let refreshPromise: Promise<void> | null = null;
+let refreshPromise: Promise<AxiosResponse> | null = null;
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
-  timeout: 15000,
 });
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (res) => res,
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
     const message = error.response?.data?.message;
 
-    if (
-      status === 401 &&
-      message === "ACCESS_TOKEN_EXPIRED" &&
-      !originalRequest._retry
-    ) {
+    if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      try {
-        if (!refreshPromise) {
-          refreshPromise = axiosInstance
-            .post("/auth/refresh")
-            .then(() => {})
-            .finally(() => {
-              refreshPromise = null;
-            });
-        }
-
-        await refreshPromise;
-
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        store?.dispatch(logout());
-        window.location.href = "/login";
-        return Promise.reject(refreshError);
+      // ignore auth check endpoint
+      if (originalRequest.url?.includes("/auth/me")) {
+        return Promise.reject(error);
       }
+
+      if (message === "ACCESS_TOKEN_EXPIRED") {
+        try {
+          if (!refreshPromise) {
+            refreshPromise = axiosInstance
+              .post("/auth/refresh")
+              .finally(() => (refreshPromise = null));
+          }
+
+          await refreshPromise;
+
+          return axiosInstance(originalRequest);
+        } catch (err) {
+          store?.dispatch(logout());
+          return Promise.reject(err);
+        }
+      }
+
+      store?.dispatch(logout());
     }
 
     return Promise.reject(error);
   }
 );
-
 export default axiosInstance;

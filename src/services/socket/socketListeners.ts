@@ -14,6 +14,7 @@ import type { Socket } from "socket.io-client";
 import { MessageSchema } from "@/schemas/MessageSchema";
 import { TypingSchema } from "@/schemas/TypingSchema";
 import { OnlineSchema } from "@/schemas/OnlineSchema";
+import { toast } from "sonner";
 
 type SocketMessage = z.infer<typeof MessageSchema>;
 type TypingEvent = z.infer<typeof TypingSchema>;
@@ -79,6 +80,10 @@ export const registerSocketListener = (socket: Socket) => {
   socket.on("user:offline", (data: OnlineEvent) => {
     store.dispatch(removeOnlineUser(data));
   });
+
+  socket.on("error", (data: string)=>{
+    toast.error(data,{position: "top-right"})
+  })
 
   socket.on("disconnect", () => {
     const typingUsers = store.getState().notification.typing;

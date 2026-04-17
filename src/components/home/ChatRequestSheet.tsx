@@ -37,9 +37,17 @@ const ChatRequestSheet = ({ trigger }: ProfileSheetProps) => {
     const fetchRequests = async () => {
       try {
         const res = await dispatch(getFriendRequests()).unwrap()
-      } catch (error) {
-        toast.error(error, { position: "top-right" })
+      } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        toast.error(String((error as any).message),{position: "top-right"})
+      } else {
+        toast.error("Something went wrong",{position: "top-right"})
       }
+    }
     }
     fetchRequests()
   }, [dispatch])
@@ -68,8 +76,16 @@ const ChatRequestSheet = ({ trigger }: ProfileSheetProps) => {
       dispatch(getFriendRequests())
       dispatch(getUser())
       toast.success(res, { position: "top-right" })
-    } catch (error) {
-      toast.error(error.message, { position: "top-right" })
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        toast.error(String((error as any).message),{position: "top-right"})
+      } else {
+        toast.error("Something went wrong",{position: "top-right"})
+      }
     }
   }
 
@@ -78,8 +94,16 @@ const ChatRequestSheet = ({ trigger }: ProfileSheetProps) => {
       const res = await dispatch(rejectFriendRequest(reqId)).unwrap()
       dispatch(getFriendRequests())
       toast.success(res, { position: "top-right" })
-    } catch (error) {
-      toast.error(error.message, { position: "top-right" })
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        toast.error(String((error as any).message),{position: "top-right"})
+      } else {
+        toast.error("Something went wrong",{position: "top-right"})
+      }
     }
   } 
 
@@ -88,8 +112,16 @@ const ChatRequestSheet = ({ trigger }: ProfileSheetProps) => {
       const res = await dispatch(cancelFriendRequest(reqId)).unwrap()
       dispatch(getFriendRequests())
       toast.success(res, { position: "top-right" })
-    } catch (error) {
-      toast.error(error.message, { position: "top-right" })
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        toast.error(String((error as any).message),{position: "top-right"})
+      } else {
+        toast.error("Something went wrong",{position: "top-right"})
+      }
     }
   }
   return (

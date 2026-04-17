@@ -76,9 +76,17 @@ export function SearchSheet() {
             dispatch(getFriendRequests())
             toast.success(res, { position: "top-right" })
 
-        } catch (error) {
-            toast.error(error.message, { position: "top-right" })
-        }
+        } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        toast.error(String((error as any).message),{position: "top-right"})
+      } else {
+        toast.error("Something went wrong",{position: "top-right"})
+      }
+    }
 
     }
 

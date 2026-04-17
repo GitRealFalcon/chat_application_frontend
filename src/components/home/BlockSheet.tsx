@@ -35,8 +35,16 @@ const BlockSheet = ({ trigger }: ProfileSheetProps) => {
       await dispatch(unBlockUser(chatId)).unwrap()
       dispatch(getUser())
       toast.success(`${name} unBlocked`, { position: "top-right" })
-    } catch (error) {
-      toast.success(error, { position: "top-right" })
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        toast.error(String((error as any).message),{position: "top-right"})
+      } else {
+        toast.error("Something went wrong",{position: "top-right"})
+      }
     }
   }
 

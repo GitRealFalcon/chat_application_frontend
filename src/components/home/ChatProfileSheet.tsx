@@ -28,6 +28,8 @@ type ProfileSheetProps = {
   trigger?: ReactNode
 }
 
+
+
 export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
   const [contact, setContact] = useState<User>()
   const { activeChat } = useAppSelector(state => state.chat)
@@ -47,8 +49,16 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
       dispatch(clearActiveChat())
       dispatch(getUser())
       toast.success(`${activeChat.title} blocked ✅`, { position: "top-right" })
-    } catch (error) {
-      toast.error(error)
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        toast.error(String((error as any).message),{position: "top-right"})
+      } else {
+        toast.error("Something went wrong",{position: "top-right"})
+      }
     }
   }
 

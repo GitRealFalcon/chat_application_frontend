@@ -151,7 +151,7 @@ const Verify = () => {
                     <CardTitle>Verify your login</CardTitle>
                     <CardDescription>
                         Enter the verification code we sent to your email address:{" "}
-                        <span className="font-medium">m@example.com</span>.
+                        <span className="font-medium">{email}</span>.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

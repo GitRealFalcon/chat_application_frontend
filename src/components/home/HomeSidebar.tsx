@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarSeparator } from '@/components/ui/sidebar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Archive, BookOpen, Bot, Box, ChevronDown, ChevronRight, ChevronUp, FileText, Home, Inbox, LogOut, Plus, Send, Settings, SlidersHorizontal, SquareTerminal, Trash2, User, User2, UserRoundCheck, UserRoundMinus, UserRoundPen, UserRoundX } from 'lucide-react'
+import { Archive, BadgeAlert, BadgeCheck, BookOpen, Bot, Box, ChevronDown, ChevronRight, ChevronUp, FileText, Home, Inbox, LogOut, Plus, Send, Settings, SlidersHorizontal, SquareTerminal, Trash2, User, User2, UserRoundCheck, UserRoundMinus, UserRoundPen, UserRoundX } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { ProfileSheet } from './ProfileSheet'
@@ -15,6 +15,7 @@ import ChatRequestSheet from './ChatRequestSheet'
 import SettingSheet from './SettingSheet'
 import BlockSheet from './BlockSheet'
 import { logoutUser } from '@/features/auth/authSlice'
+import { Badge } from '../ui/badge'
 
 
 
@@ -53,7 +54,7 @@ const HomeSidebar = () => {
     if (!Chats) {
       return []
     }
-    const blockFilter = blocked.length > 0 ? Chats.filter((chat)=> blocked.some((block)=> chat._id !== block._id)) : Chats
+    const blockFilter = blocked.length > 0 ? Chats.filter((chat) => blocked.some((block) => chat._id !== block._id)) : Chats
 
     return blockFilter.map(contact => {
       return {
@@ -68,7 +69,7 @@ const HomeSidebar = () => {
     setContacts(GetContacts())
   }, [Chats, messages, blocked])
 
-  const handleContactChat = async(contact: contact) => {
+  const handleContactChat = async (contact: contact) => {
     dispatch(setActiveChat({
       _id: contact._id,
       chat: "direct",
@@ -232,8 +233,13 @@ const HomeSidebar = () => {
                       <AvatarFallback>LG</AvatarFallback>
                     </Avatar>
 
-                    <span className="truncate group-data-[collapsible=icon]:hidden">
-                      {user?.name}
+                    <span className="truncate font-bold flex items-center gap-1 capitalize group-data-[collapsible=icon]:hidden">
+                      {user?.name} {user.isVerified ? <Badge variant="secondary">
+                        <BadgeCheck data-icon="inline-start" />
+
+                      </Badge> : <Badge variant="destructive">
+                        <BadgeAlert data-icon="inline-start" />
+                      </Badge>}
                     </span>
 
                     <ChevronUp className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />

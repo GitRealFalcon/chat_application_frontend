@@ -12,10 +12,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { User2 } from "lucide-react"
+import {  BadgeAlert, BadgeCheck, User2 } from "lucide-react"
 import type { ReactNode } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Separator } from "../ui/separator"
+import { Badge } from "../ui/badge"
+import { Link } from "react-router-dom"
 
 
 type ProfileSheetProps = {
@@ -41,7 +43,7 @@ export function ProfileSheet({ trigger }: ProfileSheetProps) {
         <SheetHeader>
           <SheetTitle>User profile</SheetTitle>
           <SheetDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
+            {!user.isVerified? <Link to={`/verify/${user.email}`}><div className="bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20 rounded-2xl p-2">Your account hasn’t been verified yet. Please click here to verify your email.</div></Link> : "Make changes to your profile here. Click save when you&apos;re done."}
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col items-center gap-2 px-4">
@@ -52,6 +54,13 @@ export function ProfileSheet({ trigger }: ProfileSheetProps) {
             />
             <AvatarFallback>LG</AvatarFallback>
           </Avatar>
+          {user?.isVerified ? <Badge variant="secondary">
+        <BadgeCheck data-icon="inline-start" />
+        Verified
+      </Badge>: <Badge variant="destructive">
+        <BadgeAlert data-icon="inline-start" />
+        Unverified
+      </Badge>}
           <div className="text-center font-semibold text-2xl">
             {user.name}
           </div>

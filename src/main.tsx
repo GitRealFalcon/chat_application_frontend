@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, } from 'react-router-dom'
 import Protected from './components/authLayout'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -11,6 +11,7 @@ import { Provider } from 'react-redux'
 import store from './App/store'
 import { ThemeProvider } from './components/theme-provider'
 import { Toaster } from './components/ui/sonner'
+import Verify from './pages/Verify'
 
 
 const router = createBrowserRouter([
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path:"/login",
         element:<Login/>
+      },
+      {
+        path: "/verify/:email",
+        element: <Verify/>
       }
     ]
   }

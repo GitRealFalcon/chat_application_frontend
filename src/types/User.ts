@@ -4,6 +4,7 @@ export type User = {
     _id?: string
     name: string,
     email: string,
+    isVerified?: boolean,
     Chats?: User[],
     JoinedGroups?: Group[],
     Blocked?: User[],

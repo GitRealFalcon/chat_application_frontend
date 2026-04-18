@@ -11,7 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Ban, Bell, Filter, RefreshCcwIcon, Trash2, User2, UserPlus2, UserPlus2Icon } from "lucide-react"
+import { BadgeAlert, BadgeCheck, Ban, Bell, Filter, RefreshCcwIcon, Trash2, User2, UserPlus2, UserPlus2Icon } from "lucide-react"
 import { useEffect, useState, type ReactNode } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { useAppDispatch, useAppSelector } from "@/App/hooks"
@@ -23,6 +23,7 @@ import { toast } from "sonner"
 import { getUser } from "@/features/auth/authSlice"
 import { clearActiveChat, deleteAllMessage, deleteAllMessageReducer } from "@/features/chat/chatSlice"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
+import { Badge } from "../ui/badge"
 
 type ProfileSheetProps = {
   trigger?: ReactNode
@@ -122,6 +123,13 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
             />
             <AvatarFallback>LG</AvatarFallback>
           </Avatar>
+          {contact?.isVerified ? <Badge variant="secondary">
+        <BadgeCheck data-icon="inline-start" />
+        Verified
+      </Badge>: <Badge variant="destructive">
+        <BadgeAlert data-icon="inline-start" />
+        Unverified
+      </Badge>}
           <div className="text-center font-semibold text-2xl">
             {activeChat?.title}
           </div>

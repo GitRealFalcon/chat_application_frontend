@@ -24,10 +24,7 @@ axiosInstance.interceptors.response.use(
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // ignore auth check endpoint
-      if (originalRequest.url?.includes("/auth/me")) {
-        return Promise.reject(error);
-      }
+  
 
       if (message === "ACCESS_TOKEN_EXPIRED") {
         try {

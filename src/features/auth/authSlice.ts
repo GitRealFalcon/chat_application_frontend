@@ -4,14 +4,18 @@ import {
   registerAPI,
   meAPI,
   logoutAPI,
-  type LoginPayload,
-  type RegisterPayload,
+  generateCodeAPI,
+  verificationAPI
 } from "./authAPI";
 import { User } from "@/types/User";
+import { ApiResponse } from "@/types/ApiResponse";
+import z from "zod";
+import { singUpSchema } from "@/schemas/singUpSchema";
+import { signInSchema } from "@/schemas/signInSchema";
 
-export const loginUser = createAsyncThunk<any, LoginPayload>(
+export const loginUser = createAsyncThunk(
   "auth/login",
-  async (data, thunkAPI) => {
+  async (data: z.infer<typeof signInSchema>, thunkAPI) => {
     try {
       return await loginAPI(data);
     } catch (error) {
@@ -22,9 +26,9 @@ export const loginUser = createAsyncThunk<any, LoginPayload>(
   }
 );
 
-export const registerUser = createAsyncThunk<any, RegisterPayload>(
+export const registerUser = createAsyncThunk(
   "auth/register",
-  async (data, thunkAPI) => {
+  async (data: z.infer<typeof singUpSchema>, thunkAPI) => {
     try {
       return await registerAPI(data);
     } catch (error) {
@@ -58,6 +62,27 @@ export const logoutUser = createAsyncThunk(
     }
   }
 )
+export const verification = createAsyncThunk(
+  "auth/verification",
+  async (data:{email: string, code: string}, thunkAPI)=>{
+    try {
+      const res = await verificationAPI(data)
+      return res
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "verification failed")
+    }
+  }
+)
+export const generateCode = createAsyncThunk(
+  "auth/generateCode",
+  async (email: string, thunkAPI)=>{
+    try {
+      return await generateCodeAPI(email)
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "generateCode failed")
+    }
+  }
+)
 
 const authSlice = createSlice({
   name: "auth",
@@ -69,7 +94,7 @@ const authSlice = createSlice({
     authChecked: false,
     message: null,
     success: null,
-    
+    verificationExpiry: null as Date | null
   },
   reducers:{
     logout: (state)=>{
@@ -115,8 +140,27 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state,action) => {
         state.loading = false;
         state.message = action.payload.message || "Register success"
+        state.verificationExpiry = (action.payload.data as any)?.verificationExpiry
+        
       })
       .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        
+      })
+
+      .addCase(generateCode.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(generateCode.fulfilled, (state,action) => {
+        state.loading = false;
+        state.message = action.payload.message || "generateCode success"
+        state.verificationExpiry = (action.payload.data as any)?.verificationExpiry
+        
+      })
+      .addCase(generateCode.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         

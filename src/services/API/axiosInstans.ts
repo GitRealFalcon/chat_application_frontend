@@ -1,5 +1,7 @@
 import axios, { AxiosResponse } from "axios";
-import { logout } from "../../features/auth/authSlice";
+import { logout, setAuthReady } from "../../features/auth/authSlice";
+import { connectSocketIfNeeded, getSocket, initSocket } from "../socket/socket";
+import { registerSocketListener } from "../socket/socketListeners";
 
 let store: any = null;
 
@@ -20,12 +22,9 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
     const status = error.response?.status;
     const message = error.response?.data?.message;
-    
-    
+
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
-  
 
       if (message === "ACCESS_TOKEN_EXPIRED") {
         try {
@@ -36,6 +35,15 @@ axiosInstance.interceptors.response.use(
           }
 
           await refreshPromise;
+
+          store.dispatch(setAuthReady(true));
+
+          // Reuse current socket to avoid creating a second live connection.
+          const socket = getSocket() ?? initSocket();
+          if (socket) {
+            registerSocketListener(socket);
+            connectSocketIfNeeded(socket);
+          }
 
           return axiosInstance(originalRequest);
         } catch (err) {
@@ -50,4 +58,5 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 export default axiosInstance;

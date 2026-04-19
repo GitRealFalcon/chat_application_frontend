@@ -1,14 +1,32 @@
-import { Outlet } from "react-router-dom"
-import { initSocket, disconnectSocket } from "./services/socket/socket"
-import { useAppDispatch, useAppSelector } from "./App/hooks"
-import { registerSocketListener } from "./services/socket/socketListeners"
-import { useEffect } from "react"
-import { getUser } from "./features/auth/authSlice"
-import { getOnlineUser } from "./features/user/userSlice"
+import { Outlet } from "react-router-dom";
+import {
+  initSocket,
+  disconnectSocket,
+  injectSocketStore,
+} from "./services/socket/socket";
+import { registerSocketListener } from "./services/socket/socketListeners";
+import { useAppDispatch, useAppSelector } from "./App/hooks";
+import { useEffect } from "react";
+import { getUser } from "./features/auth/authSlice";
+import { getOnlineUser } from "./features/user/userSlice";
+import {
+  injectSocketLifecycleStore,
+  useSocketLifecycle,
+} from "./services/socket/useSocketLifecycle";
+import store from "./App/store";
+
+// 🔥 inject store once
+injectSocketStore(store);
+injectSocketLifecycleStore(store);
 
 function App() {
-  const { isAuthenticated, authChecked } = useAppSelector(state => state.auth)
-  const dispatch = useAppDispatch()
+  const { isAuthenticated, authChecked } = useAppSelector(
+    (state) => state.auth
+  );
+
+  const dispatch = useAppDispatch();
+
+  useSocketLifecycle();
 
   useEffect(() => {
     if (!authChecked) {
@@ -17,19 +35,24 @@ function App() {
   }, [authChecked, dispatch]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      const socket = initSocket()
-      registerSocketListener(socket)
+    if (isAuthenticated && authChecked) {
+      console.log("🔥 Init socket from App");
 
-      dispatch(getOnlineUser()) 
+      const socket = initSocket();
+
+      if (socket) {
+        registerSocketListener(socket);
+      }
+
+      dispatch(getOnlineUser());
     }
 
-    return () => {
-      disconnectSocket()
+    if (!isAuthenticated && authChecked) {
+      disconnectSocket();
     }
-  }, [isAuthenticated, dispatch])
+  }, [isAuthenticated, authChecked, dispatch]);
 
-  return <Outlet />
+  return <Outlet />;
 }
 
-export default App
+export default App;

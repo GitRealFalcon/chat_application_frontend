@@ -23,9 +23,14 @@ type OnlineEvent = z.infer<typeof OnlineSchema>;
 export const registerSocketListener = (socket: Socket) => {
   const user = store.getState().auth.user;
 
-  socket.on("connect", () => {
-    console.log("✅ Socket connected:", socket.id);
-  });
+  socket.off("direct:message");
+  socket.off("group:message");
+  socket.off("typing:start");
+  socket.off("typing:stop");
+  socket.off("user:online");
+  socket.off("user:offline");
+  socket.off("error");
+  socket.off("disconnect");
 
   // -------------------- Direct Messages --------------------
   socket.on("direct:message", (message: SocketMessage) => {

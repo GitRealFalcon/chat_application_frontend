@@ -1,6 +1,6 @@
-export type ApiResponse = {
+export type ApiResponse<TData = object> = {
     statuscode: number,
-    data?: object,
+    data?: TData,
     message: string,
     success: boolean
 }

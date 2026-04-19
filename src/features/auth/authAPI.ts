@@ -1,11 +1,21 @@
 import { ApiResponse } from "@/types/ApiResponse";
+import { User } from "@/types/User";
 import axiosInstance from "../../services/API/axiosInstans"
 import z from "zod";
 import { singUpSchema } from "@/schemas/singUpSchema";
 import { signInSchema } from "@/schemas/signInSchema";
 
+export type LoginApiData = {
+   user: User;
+   accessToken?: string;
+};
 
-export const loginAPI = async (data: z.infer<typeof signInSchema>): Promise<ApiResponse> => {
+export type RegisterApiData = {
+   verificationExpiry?: string | Date;
+};
+
+
+export const loginAPI = async (data: z.infer<typeof signInSchema>): Promise<ApiResponse<LoginApiData>> => {
    const res = await axiosInstance.post("/auth/login", data)
    const token = res.data.data?.accessToken
    if (token) {
@@ -14,12 +24,12 @@ export const loginAPI = async (data: z.infer<typeof signInSchema>): Promise<ApiR
    return res.data
 }
 
-export const registerAPI = async (data: z.infer<typeof singUpSchema>): Promise<ApiResponse> => {
+export const registerAPI = async (data: z.infer<typeof singUpSchema>): Promise<ApiResponse<RegisterApiData>> => {
    const res = await axiosInstance.post("/auth/register", data)
    return res.data
 }
 
-export const meAPI = async (): Promise<ApiResponse> => {
+export const meAPI = async (): Promise<ApiResponse<User>> => {
    const res = await axiosInstance.get("/auth/me")
    return res.data
 }

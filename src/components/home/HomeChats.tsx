@@ -33,7 +33,7 @@ const HomeChats = () => {
     const options = {
         target: "_blank",
         rel: "noopener noreferrer",
-        className: "text-blue-500 underline"
+        className: "text-green-600 underline"
     }
 
     useEffect(() => {
@@ -100,7 +100,7 @@ const HomeChats = () => {
                                             <div
                                                 className={`flex text-[11px] gap-0.5 text-muted-foreground justify-end items-center`}
                                             >
-                                                {formatTime(message.ts)} <div className='flex items-center' ><CheckCheck className={`size-4 ${message.status !== "sent" && "hidden"}`}/><CheckCheck  className={`size-4 ${message.status !== "read" && "hidden"} text-blue-500`}/></div>
+                                                {formatTime(message.ts)} <div className={`${!isMe && "hidden"} flex items-center`} ><CheckCheck className={`size-4 ${message.status !== "sent" && "hidden"}`}/><CheckCheck  className={`size-4 ${message.status !== "read" && "hidden"} text-blue-500`}/></div>
                                             </div>
                                         </div>
 

@@ -4,6 +4,8 @@ import {
   registerAPI,
   meAPI,
   logoutAPI,
+  type LoginApiData,
+  type RegisterApiData,
   generateCodeAPI,
   verificationAPI
 } from "./authAPI";
@@ -13,9 +15,13 @@ import z from "zod";
 import { singUpSchema } from "@/schemas/singUpSchema";
 import { signInSchema } from "@/schemas/signInSchema";
 
-export const loginUser = createAsyncThunk(
+export const loginUser = createAsyncThunk<
+  ApiResponse<LoginApiData>,
+  z.infer<typeof signInSchema>,
+  { rejectValue: unknown }
+>(
   "auth/login",
-  async (data: z.infer<typeof signInSchema>, thunkAPI) => {
+  async (data, thunkAPI) => {
     try {
       return await loginAPI(data);
     } catch (error) {
@@ -26,9 +32,13 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-export const registerUser = createAsyncThunk(
+export const registerUser = createAsyncThunk<
+  ApiResponse<RegisterApiData>,
+  z.infer<typeof singUpSchema>,
+  { rejectValue: unknown }
+>(
   "auth/register",
-  async (data: z.infer<typeof singUpSchema>, thunkAPI) => {
+  async (data, thunkAPI) => {
     try {
       return await registerAPI(data);
     } catch (error) {
@@ -39,7 +49,11 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-export const getUser = createAsyncThunk(
+export const getUser = createAsyncThunk<
+  ApiResponse<User>,
+  void,
+  { rejectValue: unknown }
+>(
   "auth/me",
   async (_, thunkAPI) => {
     try {
@@ -52,7 +66,11 @@ export const getUser = createAsyncThunk(
   }
 );
 
-export const logoutUser = createAsyncThunk(
+export const logoutUser = createAsyncThunk<
+  ApiResponse,
+  void,
+  { rejectValue: unknown }
+>(
   "auth/logout",
   async (_, thunkAPI)=>{
     try {
@@ -62,9 +80,13 @@ export const logoutUser = createAsyncThunk(
     }
   }
 )
-export const verification = createAsyncThunk(
+export const verification = createAsyncThunk<
+  ApiResponse,
+  {email: string, code: string},
+  { rejectValue: unknown }
+>(
   "auth/verification",
-  async (data:{email: string, code: string}, thunkAPI)=>{
+  async (data, thunkAPI)=>{
     try {
       const res = await verificationAPI(data)
       return res
@@ -73,9 +95,13 @@ export const verification = createAsyncThunk(
     }
   }
 )
-export const generateCode = createAsyncThunk(
+export const generateCode = createAsyncThunk<
+  ApiResponse<RegisterApiData>,
+  string,
+  { rejectValue: unknown }
+>(
   "auth/generateCode",
-  async (email: string, thunkAPI)=>{
+  async (email, thunkAPI)=>{
     try {
       return await generateCodeAPI(email)
     } catch (error) {
@@ -94,15 +120,20 @@ const authSlice = createSlice({
     authChecked: false,
     message: null,
     success: null,
-    verificationExpiry: null as Date | null
+    verificationExpiry: null as Date | null,
+    authReady: false
   },
   reducers:{
     logout: (state)=>{
       state.user = null
       state.isAuthenticated =false
       state.authChecked = true;
+      state.authReady = false
       state.message = null
       state.loading = false
+    },
+    setAuthReady: (state, action)=>{
+      state.authReady = action.payload
     }
   },
  
@@ -121,6 +152,7 @@ const authSlice = createSlice({
         state.user = action.payload.data.user;
         state.isAuthenticated = true;
         state.authChecked = true;
+        state.authReady = true;
         state.success = action.payload.success 
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -128,6 +160,7 @@ const authSlice = createSlice({
         state.error = action.payload;
         state.isAuthenticated = false;
         state.authChecked = true;
+        state.authReady = false;
         state.success = (action.payload as any)?.success
       })
 
@@ -175,12 +208,14 @@ const authSlice = createSlice({
         state.user = action.payload.data as User;
         state.isAuthenticated = true;
         state.authChecked = true;
+        state.authReady = true;
       })
       .addCase(getUser.rejected, (state) => {
         state.loading = false;
         state.user = null;
         state.isAuthenticated = false;
         state.authChecked = true;
+        state.authReady = false;
       })
 
       .addCase(logoutUser.pending, (state)=>{
@@ -192,14 +227,16 @@ const authSlice = createSlice({
         state.loading = false
         state.user = null
         state.authChecked = true;
+        state.authReady = false;
       })
       .addCase(logoutUser.rejected,(state,action)=>{
         state.loading = false
         state.error = action.payload
         state.isAuthenticated = false
+        state.authReady = false
       })
   }
 });
 
-export const {logout} = authSlice.actions
+export const {logout, setAuthReady} = authSlice.actions
 export default authSlice.reducer;

@@ -6,9 +6,10 @@ import { useAppDispatch, useAppSelector } from '@/App/hooks'
 import chatWhite from "@/assets/chatBG-white.jpg";
 import chatBlack from "@/assets/chatBG-black.jpg";
 import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '../ui/context-menu'
-import { Copy, Forward, PencilIcon, ShareIcon, TrashIcon } from 'lucide-react'
+import { Check, CheckCheck, Copy, Forward, PencilIcon, ShareIcon, TrashIcon } from 'lucide-react'
 import { deleteOneMessage, deleteOneMessageReducer } from '@/features/chat/chatSlice'
 import { toast } from 'sonner'
+import Linkify from "linkify-react"
 
 
 type Message = {
@@ -29,6 +30,12 @@ const HomeChats = () => {
     const bottomRef = useRef(null)
     const dispatch = useAppDispatch()
 
+    const options = {
+        target: "_blank",
+        rel: "noopener noreferrer",
+        className: "text-blue-500 underline"
+    }
+
     useEffect(() => {
         bottomRef?.current.scrollIntoView({ behavior: "smooth" })
     }, [chatMessages])
@@ -40,26 +47,26 @@ const HomeChats = () => {
         })
     }
 
-    const handleDeleteOne = async(chatId: string, msgId: string)=>{
-            try {
-                await dispatch(deleteOneMessage(msgId)).unwrap()
-                dispatch(deleteOneMessageReducer({chatId,msgId}))
-            } catch (error: unknown) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "message" in error
-      ) {
-        toast.error(String((error as any).message),{position: "top-right"})
-      } else {
-        toast.error("Something went wrong",{position: "top-right"})
-      }
-    }
+    const handleDeleteOne = async (chatId: string, msgId: string) => {
+        try {
+            await dispatch(deleteOneMessage(msgId)).unwrap()
+            dispatch(deleteOneMessageReducer({ chatId, msgId }))
+        } catch (error: unknown) {
+            if (
+                typeof error === "object" &&
+                error !== null &&
+                "message" in error
+            ) {
+                toast.error(String((error as any).message), { position: "top-right" })
+            } else {
+                toast.error("Something went wrong", { position: "top-right" })
+            }
+        }
     }
 
-    const handleCopy = (text: string)=>{
+    const handleCopy = (text: string) => {
         window.navigator.clipboard.writeText(text)
-        toast.success(`Message copied`,{position:"top-right"})
+        toast.success(`Message copied`, { position: "top-right" })
     }
 
     return (
@@ -78,26 +85,31 @@ const HomeChats = () => {
                             <ContextMenu>
                                 <ContextMenuTrigger key={message.msgId} className={`flex max-w-[70%] flex-col ${isMe ? "self-end" : "self-start"}`}>
                                     <div
-                                        
+
                                     >
                                         <div
-                                            className={`rounded-b-lg px-3 py-2 text-white text-sm ${isMe ? "bg-[#005c4b] rounded-l-lg" : "bg-[#202c33] rounded-r-lg"
+                                            className={`rounded-b-lg px-2 py-1 text-white text-sm ${isMe ? "bg-[#005c4b] rounded-l-lg" : "bg-[#202c33] rounded-r-lg"
                                                 }`}
                                         >
-                                            {message.text}
+                                            <div className='mr-5'>
+                                                <Linkify options={options}>
+                                                    {message.text}
+                                                </Linkify>
+                                            </div>
+
+                                            <div
+                                                className={`flex text-[11px] gap-0.5 text-muted-foreground justify-end items-center`}
+                                            >
+                                                {formatTime(message.ts)} <div className='flex items-center' ><CheckCheck className={`size-4 ${message.status !== "sent" && "hidden"}`}/><CheckCheck  className={`size-4 ${message.status !== "read" && "hidden"} text-blue-500`}/></div>
+                                            </div>
                                         </div>
 
-                                        <div
-                                            className={`mt-1 text-[11px] text-muted-foreground ${isMe ? "text-right" : "text-left"
-                                                }`}
-                                        >
-                                            {formatTime(message.ts)}
-                                        </div>
+
                                     </div>
                                 </ContextMenuTrigger>
                                 <ContextMenuContent>
                                     <ContextMenuGroup>
-                                        <ContextMenuItem onClick={()=> handleCopy(message.text)}>
+                                        <ContextMenuItem onClick={() => handleCopy(message.text)}>
                                             <Copy />
                                             Copy
                                         </ContextMenuItem>
@@ -108,7 +120,7 @@ const HomeChats = () => {
                                     </ContextMenuGroup>
                                     <ContextMenuSeparator />
                                     <ContextMenuGroup>
-                                        <ContextMenuItem onClick={()=> handleDeleteOne(activeChat._id,message.msgId)} variant="destructive">
+                                        <ContextMenuItem onClick={() => handleDeleteOne(activeChat._id, message.msgId)} variant="destructive">
                                             <TrashIcon />
                                             Delete
                                         </ContextMenuItem>

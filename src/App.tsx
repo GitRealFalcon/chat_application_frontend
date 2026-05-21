@@ -14,6 +14,7 @@ import {
   useSocketLifecycle,
 } from "./services/socket/useSocketLifecycle";
 import store from "./App/store";
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // 🔥 inject store once
 injectSocketStore(store);
@@ -52,7 +53,10 @@ function App() {
     }
   }, [isAuthenticated, authChecked, dispatch]);
 
-  return <Outlet />;
+  return <div>
+    <Outlet />;
+    <SpeedInsights />
+  </div>
 }
 
 export default App;

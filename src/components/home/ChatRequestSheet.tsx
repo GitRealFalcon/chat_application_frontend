@@ -1,6 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Sheet,
   SheetClose,
@@ -21,6 +19,8 @@ import { toast } from "sonner"
 import { Separator } from "../ui/separator"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
 import { getUser } from "@/features/auth/authSlice"
+import { createOrGetDirectConversationAPI } from "@/features/chat/chatAPI"
+import { fetchConversations } from "@/features/chat/chatSlice"
 
 
 type ProfileSheetProps = {
@@ -70,11 +70,18 @@ const ChatRequestSheet = ({ trigger }: ProfileSheetProps) => {
     filterRequests(friendRequests)
   }, [friendRequests])
 
-  const handleAcceptRequest = async (reqId: string) => {
+  const handleAcceptRequest = async (request: FriendRequest) => {
     try {
-      const res = await dispatch(acceptFriendRequest(reqId)).unwrap()
+      const res = await dispatch(acceptFriendRequest(request._id)).unwrap()
+
+      const participantId = request.requestSender?._id
+      if (participantId) {
+        await createOrGetDirectConversationAPI(participantId)
+      }
+
       dispatch(getFriendRequests())
       dispatch(getUser())
+      dispatch(fetchConversations({ limit: 20 }))
       toast.success(res, { position: "top-right" })
     } catch (error: unknown) {
       if (
@@ -185,7 +192,7 @@ const ChatRequestSheet = ({ trigger }: ProfileSheetProps) => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel onClick={() => handleRejectRequest(item._id)} >Reject</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleAcceptRequest(item._id)} >Accept</AlertDialogAction>
+                      <AlertDialogAction onClick={() => handleAcceptRequest(item)} >Accept</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog> : card

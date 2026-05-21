@@ -1,6 +1,7 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
 import { getOnlineUsersAPI, getUserByIdAPI, searchUserAPI, blockUserAPI, unBlockUserAPI } from "./userAPI";
 import { User } from "@/types/User";
+import type { RootState } from "@/App/store";
 
 type UserState = {
   onlineUser: string[];
@@ -197,4 +198,10 @@ const userSlice = createSlice({
 });
 
 export const { addOnlineUser, removeOnlineUser, resetSearchUser, setSearchUser } = userSlice.actions;
+
+const selectUserState = (state: RootState) => state.user
+
+export const selectOnlineUsers = createSelector(selectUserState, (user) => user.onlineUser)
+export const selectSearchUsers = createSelector(selectUserState, (user) => user.searchUser)
+
 export default userSlice.reducer;

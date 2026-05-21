@@ -1,25 +1,33 @@
-import React from 'react'
 import { SidebarTrigger } from '../ui/sidebar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { Button } from '../ui/button'
-import { Moon, Settings, Sun, User2, UserRoundXIcon } from 'lucide-react'
+import { Moon, Sun, User2 } from 'lucide-react'
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from '../ui/avatar'
-import { Link } from 'react-router-dom'
 import { useTheme } from '../theme-provider'
 import { SearchSheet } from './SearchSheet'
 import { ChatProfileSheet } from './ChatProfileSheet'
-import { useAppSelector,useAppDispatch } from '@/App/hooks'
+import { useAppSelector } from '@/App/hooks'
 import { directTyping } from '@/utils/helpers'
+import { selectActiveConversation, selectActiveConversationId, selectLegacyActiveChat } from '@/features/chat/chatSlice'
+import { selectOnlineUsers } from '@/features/user/userSlice'
+import { selectTypingUsers } from '@/features/notification/notificationSlice'
 
 const HomeNavbar = () => {
   const { setTheme } = useTheme()
-  const activeChat = useAppSelector(state => state.chat.activeChat)
-  const {onlineUser} = useAppSelector(state=> state.user)
-  const {typing} = useAppSelector(state=> state.notification)
+  const activeConversation = useAppSelector(selectActiveConversation)
+  const activeChat = useAppSelector(selectLegacyActiveChat)
+  const activeConversationId = useAppSelector(selectActiveConversationId)
+  const onlineUser = useAppSelector(selectOnlineUsers)
+  const typing = useAppSelector(selectTypingUsers)
+
+  const chatId = activeConversationId ?? activeConversation?._id ?? activeChat._id
+  const chatTitle = activeConversation?.title ?? activeConversation?.name ?? activeChat.title
+  const chatAvatar = activeConversation?.avatar ?? activeChat.avatar
+  const chatType = activeConversation?.chat ?? activeChat.chat
 
 
   return (
-    <div className='sticky top-0 z-30 flex items-center justify-between border-b bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+    <div className='sticky top-0 z-30 flex items-center justify-between border-b bg-background/95 p-4 backdrop-blur supports-backdrop-filter:bg-background/60'>
       {/* Left */}
       <div className='flex gap-2 items-center'>
         <SidebarTrigger />
@@ -28,19 +36,19 @@ const HomeNavbar = () => {
           <DropdownMenuTrigger >
             <div className='flex gap-3 items-center'>
               <Avatar>
-                <AvatarImage src={activeChat.avatar} alt="@shadcn" />
+                <AvatarImage src={chatAvatar} alt="@shadcn" />
                 <AvatarFallback>CN</AvatarFallback>
-                <AvatarBadge className={`${onlineUser.includes(activeChat._id) && "bg-green-600 dark:bg-green-800"} `} />
+                <AvatarBadge className={`${onlineUser.includes(chatId) && "bg-green-600 dark:bg-green-800"} `} />
               </Avatar>
               <div className='flex flex-col'>
-                <span className='font-semibold capitalize text-start'>{activeChat.title}</span>
-                <span className='text-green-500 w-fit h-3 text-xs'>{activeChat?.chat === "direct" ? directTyping(typing,activeChat._id) : ""}</span>
+                <span className='font-semibold capitalize text-start'>{chatTitle}</span>
+                <span className='text-green-500 w-fit h-3 text-xs'>{chatType === "direct" ? directTyping(typing, chatId) : ""}</span>
               </div>
             </div>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent sideOffset={10}>
-            <DropdownMenuLabel>{activeChat.title}</DropdownMenuLabel>
+            <DropdownMenuLabel>{chatTitle}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <ChatProfileSheet
               trigger={

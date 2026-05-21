@@ -1,4 +1,3 @@
-import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../App/hooks'
 import { registerUser } from '../features/auth/authSlice'
@@ -19,7 +18,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldContent
 
 } from "@/components/ui/field"
 import { Button } from "@/components/ui/button"

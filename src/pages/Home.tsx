@@ -1,4 +1,3 @@
-import React from 'react'
 import Sidebar from '@/components/home/HomeSidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import HomeNavbar from '@/components/home/HomeNavbar'

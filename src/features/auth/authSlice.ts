@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
 import {
   loginAPI,
   registerAPI,
@@ -14,6 +14,7 @@ import { ApiResponse } from "@/types/ApiResponse";
 import z from "zod";
 import { singUpSchema } from "@/schemas/singUpSchema";
 import { signInSchema } from "@/schemas/signInSchema";
+import type { RootState } from "@/App/store";
 
 export const loginUser = createAsyncThunk<
   ApiResponse<LoginApiData>,
@@ -239,4 +240,12 @@ const authSlice = createSlice({
 });
 
 export const {logout, setAuthReady} = authSlice.actions
+
+const selectAuthState = (state: RootState) => state.auth
+
+export const selectAuthUser = createSelector(selectAuthState, (auth) => auth.user)
+export const selectAuthChecked = createSelector(selectAuthState, (auth) => auth.authChecked)
+export const selectIsAuthenticated = createSelector(selectAuthState, (auth) => auth.isAuthenticated)
+export const selectAuthReady = createSelector(selectAuthState, (auth) => auth.authReady)
+
 export default authSlice.reducer;

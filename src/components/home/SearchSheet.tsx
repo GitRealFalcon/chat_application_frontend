@@ -15,12 +15,13 @@ import { Search, UserCheck2, UserPlus2, Verified } from "lucide-react"
 import { ScrollArea } from "../ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { useAppDispatch, useAppSelector } from "@/App/hooks"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { User } from "@/types/User"
 import { setSearchUser, searchUser, resetSearchUser, } from "@/features/user/userSlice"
-import { ApiResponse } from "@/types/ApiResponse"
 import { toast } from "sonner"
 import { FriendRequest, getFriendRequests, sendFriendRequest } from "@/features/friendRequest/friendRequestSlice"
+import { createOrGetDirectConversationAPI } from "@/features/chat/chatAPI"
+import { fetchConversationMessages, fetchConversations, setActiveChat, setActiveConversationId } from "@/features/chat/chatSlice"
 
 
 
@@ -35,6 +36,29 @@ export function SearchSheet() {
     const searchUsers = useAppSelector(state => state.user.searchUser)
     const friendRequests = useAppSelector(state => state.friendRequest.friendRequests)
     const dispatch = useAppDispatch()
+
+    const getConversationIdFromResponse = (payload: unknown): string | null => {
+        if (!payload) return null
+
+        if (typeof payload === "object") {
+            const data = payload as Record<string, unknown>
+
+            if (typeof data._id === "string") return data._id
+            if (typeof data.conversationId === "string") return data.conversationId
+
+            if (data.conversation && typeof data.conversation === "object") {
+                const conversation = data.conversation as Record<string, unknown>
+                if (typeof conversation._id === "string") return conversation._id
+                if (typeof conversation.conversationId === "string") return conversation.conversationId
+            }
+
+            if (data.data && typeof data.data === "object") {
+                return getConversationIdFromResponse(data.data)
+            }
+        }
+
+        return null
+    }
 
     useEffect(() => {
         if (friendRequests) {
@@ -90,6 +114,38 @@ export function SearchSheet() {
 
     }
 
+    const handleOpenConversation = async (targetUser: User) => {
+        const targetUserId = targetUser._id
+        if (!targetUserId) return
+
+        try {
+            const res = await createOrGetDirectConversationAPI(targetUserId)
+            const conversationId = getConversationIdFromResponse(res.data) ?? targetUserId
+
+            dispatch(
+                setActiveChat({
+                    _id: conversationId,
+                    chat: "direct",
+                    title: targetUser.name,
+                    avatar: targetUser.avatar ?? "",
+                })
+            )
+            dispatch(setActiveConversationId(conversationId))
+            dispatch(fetchConversationMessages({ conversationId, mode: "initial" }))
+            dispatch(fetchConversations({ limit: 20 }))
+        } catch (error: unknown) {
+            if (
+                typeof error === "object" &&
+                error !== null &&
+                "message" in error
+            ) {
+                toast.error(String((error as any).message), { position: "top-right" })
+            } else {
+                toast.error("Unable to open conversation", { position: "top-right" })
+            }
+        }
+    }
+
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -122,25 +178,41 @@ export function SearchSheet() {
                                     </Avatar>
                                     <span className="font-semibold">{item.name}</span>
                                 </div>
-                                <Button
-                                    onClick={() => handleSendRequest(item._id)}
-                                    disabled={
-                                        user.Chats &&
-                                        user.Chats.some(chat => chat._id === item._id) ||
-                                        sentRequests.some((request) => request.requestReceiver._id === item._id)
+                                {(() => {
+                                    const isExistingChat = Boolean(
+                                        user.Chats && user.Chats.some(chat => chat._id === item._id)
+                                    )
+
+                                    const hasPendingRequest = Boolean(
+                                        sentRequests && sentRequests.some((request) => request.requestReceiver._id === item._id)
+                                    )
+
+                                    const handlePrimaryAction = () => {
+                                        if (isExistingChat) {
+                                            void handleOpenConversation(item)
+                                            return
+                                        }
+
+                                        void handleSendRequest(item._id)
                                     }
+
+                                    return (
+                                <Button
+                                    onClick={handlePrimaryAction}
+                                    disabled={hasPendingRequest}
                                     variant="outline"
                                     size="icon"
                                 >
                                     {
-                                        user.Chats &&
-                                            user.Chats.some(chat => chat._id === item._id) ?
+                                        isExistingChat ?
                                             <Verified /> :
-                                            sentRequests.some((request) => request.requestReceiver._id === item._id) ?
+                                            hasPendingRequest ?
                                                 <UserCheck2 /> :
                                                 <UserPlus2 />
                                     }
                                 </Button>
+                                    )
+                                })()}
 
                             </div>
                         ))}

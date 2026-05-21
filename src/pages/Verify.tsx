@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RefreshCwIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,7 +25,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/App/hooks'
 import { generateCode, verification } from '@/features/auth/authSlice'
 import { toast } from 'sonner'
-import { verifySchema } from '@/schemas/verifySchema'
 
 const Verify = () => {
     const [value, setValue] = useState("")

@@ -1,27 +1,24 @@
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { BadgeAlert, BadgeCheck, Ban, Bell, Filter, RefreshCcwIcon, Trash2, User2, UserPlus2, UserPlus2Icon } from "lucide-react"
+import { BadgeAlert, BadgeCheck, Ban, RefreshCcwIcon, Trash2, User2, UserPlus2 } from "lucide-react"
 import { useEffect, useState, type ReactNode } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { useAppDispatch, useAppSelector } from "@/App/hooks"
 import { Separator } from "../ui/separator"
 import { User } from "@/types/User"
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "../ui/empty"
-import { blockUser } from "@/features/user/userSlice"
+import { blockUser } from "../../features/user/userSlice"
 import { toast } from "sonner"
-import { getUser } from "@/features/auth/authSlice"
-import { clearActiveChat, deleteAllMessage, deleteAllMessageReducer } from "@/features/chat/chatSlice"
+import { getUser, selectAuthUser } from "../../features/auth/authSlice"
+import { clearActiveChat, deleteAllMessage, deleteAllMessageReducer, selectActiveConversation, selectLegacyActiveChat } from "../../features/chat/chatSlice"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
 import { Badge } from "../ui/badge"
 
@@ -33,23 +30,26 @@ type ProfileSheetProps = {
 
 export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
   const [contact, setContact] = useState<User>()
-  const { activeChat } = useAppSelector(state => state.chat)
-  const user = useAppSelector(state => state.auth.user)
+  const activeChat = useAppSelector(selectLegacyActiveChat)
+  const activeConversation = useAppSelector(selectActiveConversation)
+  const user = useAppSelector(selectAuthUser)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
-    if (activeChat) {
-      const activeUser = user?.Chats.find(contact => contact._id === activeChat._id)
+    const activeConversationId = activeConversation?._id ?? activeChat?._id
+
+    if (activeConversationId) {
+      const activeUser = user?.Chats.find(contact => contact._id === activeConversationId)
       setContact(activeUser)
     }
-  }, [activeChat])
+  }, [activeConversation, activeChat, user?.Chats])
 
   const handleBlock = async (chatId: string) => {
     try {
       const res = await dispatch(blockUser(chatId)).unwrap()
       dispatch(clearActiveChat())
       dispatch(getUser())
-      toast.success(`${activeChat.title} blocked ✅`, { position: "top-right" })
+      toast.success(`${activeConversation?.title ?? activeChat.title} blocked ✅`, { position: "top-right" })
     } catch (error: unknown) {
       if (
         typeof error === "object" &&
@@ -115,10 +115,10 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
         <SheetHeader>
           <SheetTitle>Contact Info</SheetTitle>
         </SheetHeader>
-        {activeChat._id ? (<><div className="flex flex-col items-center gap-2 px-4">
+        {(activeConversation?._id ?? activeChat._id) ? (<><div className="flex flex-col items-center gap-2 px-4">
           <Avatar className="size-32 shrink-0 rounded-full">
             <AvatarImage
-              src={activeChat?.avatar} alt="@shadcn"
+              src={activeConversation?.avatar ?? activeChat?.avatar} alt="@shadcn"
               className="h-full w-full object-cover"
             />
             <AvatarFallback>LG</AvatarFallback>
@@ -131,7 +131,7 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
         Unverified
       </Badge>}
           <div className="text-center font-semibold text-2xl">
-            {activeChat?.title}
+            {activeConversation?.title ?? activeChat?.title}
           </div>
           <div className="text-center font-semibold">
             {contact && contact.email}
@@ -153,7 +153,7 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
                   <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
                     <Ban />
                   </AlertDialogMedia>
-                  <AlertDialogTitle>Block {activeChat.title}</AlertDialogTitle>
+                  <AlertDialogTitle>Block {activeConversation?.title ?? activeChat.title}</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action will block the selected user.
                     They will no longer be able to send you messages.
@@ -161,7 +161,7 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel  >Close</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => handleBlock(activeChat._id)} variant="destructive">Block Chat</AlertDialogAction>
+                  <AlertDialogAction onClick={() => handleBlock(activeConversation?._id ?? activeChat._id)} variant="destructive">Block Chat</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -179,7 +179,7 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
                   <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
                     <Trash2 />
                   </AlertDialogMedia>
-                  <AlertDialogTitle>Delete {activeChat.title}</AlertDialogTitle>
+                  <AlertDialogTitle>Delete {activeConversation?.title ?? activeChat.title}</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action will permanently remove the selected chat.
                     You won’t be able to restore the deleted conversation.
@@ -187,7 +187,7 @@ export function ChatProfileSheet({ trigger }: ProfileSheetProps) {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel >Close</AlertDialogCancel>
-                  <AlertDialogAction onClick={()=> handleDeleteAll(activeChat._id)} variant="destructive">Delete Chat</AlertDialogAction>
+                  <AlertDialogAction onClick={()=> handleDeleteAll(activeConversation?._id ?? activeChat._id)} variant="destructive">Delete Chat</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

@@ -1,6 +1,7 @@
 import { AlertMSG } from "@/types/AlertMSG";
 import { Typing } from "@/types/Typing";
-import { createSlice } from "@reduxjs/toolkit";
+import { createSelector, createSlice } from "@reduxjs/toolkit";
+import type { RootState } from "@/App/store";
 type NotificationState = {
   alertMSG: AlertMSG[],
   typing: Typing[]
@@ -54,5 +55,10 @@ export const {
   removeAlert,
   removeTyping
 } = notificationSlice.actions;
+
+const selectNotificationState = (state: RootState) => state.notification
+
+export const selectTypingUsers = createSelector(selectNotificationState, (notification) => notification.typing)
+export const selectAlertMessages = createSelector(selectNotificationState, (notification) => notification.alertMSG)
 
 export default notificationSlice.reducer;

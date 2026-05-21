@@ -1,4 +1,3 @@
-import { ActiveChat } from "@/features/chat/chatSlice";
 import { Group } from "@/types/Group";
 import { Typing } from "@/types/Typing";
 

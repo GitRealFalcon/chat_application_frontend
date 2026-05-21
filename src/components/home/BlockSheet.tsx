@@ -1,17 +1,14 @@
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { MessageSquareLock, RefreshCcwIcon, User2, UserCheck2Icon, UserPlus2, UserPlus2Icon } from "lucide-react"
+import { MessageSquareLock, RefreshCcwIcon, User2, UserPlus2 } from "lucide-react"
 import type { ReactNode } from "react"
 import { ScrollArea } from "../ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"

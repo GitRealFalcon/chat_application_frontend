@@ -54,11 +54,13 @@ function App() {
     }
   }, [isAuthenticated, authChecked, dispatch]);
 
-  return <div>
-    <Outlet />;
-    <SpeedInsights />
-    <Analytics />
-  </div>
+  return (
+    <div>
+      <Outlet />
+      <SpeedInsights />
+      <Analytics />
+    </div>
+  )
 }
 
 export default App;
